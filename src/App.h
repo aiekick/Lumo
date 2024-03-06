@@ -42,7 +42,7 @@ public:
 
 public:
     App() = default;   // Prevent construction
-    ~App() = default;  // Prevent unwanted destruction
+    virtual ~App() = default;  // Prevent unwanted destruction
 
 private:
     void m_InitMessaging();

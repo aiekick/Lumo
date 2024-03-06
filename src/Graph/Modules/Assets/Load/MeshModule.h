@@ -39,13 +39,13 @@ private:
     std::string m_FilePath;
     std::string m_FileName;
 
-    bool m_Loaded = false;
-    bool m_NeedResize = false;
-    bool m_CanWeRender = true;
-    bool m_JustReseted = false;
-    bool m_UseDepth = false;
-    bool m_NeedToClear = false;
-    bool m_NeedModelUpdate = false;
+    //bool m_Loaded = false;
+    //bool m_NeedResize = false;
+    //bool m_CanWeRender = true;
+    //bool m_JustReseted = false;
+    //bool m_UseDepth = false;
+    //bool m_NeedToClear = false;
+    //bool m_NeedModelUpdate = false;
 
     SceneModelPtr m_SceneModelPtr = nullptr;
 

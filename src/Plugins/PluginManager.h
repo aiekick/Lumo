@@ -46,7 +46,7 @@ private:
 
 public:
     PluginInstance();
-    ~PluginInstance();
+    virtual ~PluginInstance();
 
     PluginReturnMsg Init(GaiApi::VulkanCoreWeak vVulkanCoreWeak, const std::string& vName, const std::string& vFilePathName);
     void Unit();
@@ -84,5 +84,5 @@ protected:
     PluginManager& operator=(const PluginManager&) {
         return *this;
     };                           // Prevent assignment
-    ~PluginManager() = default;  // Prevent unwanted destruction
+    virtual ~PluginManager() = default;  // Prevent unwanted destruction
 };

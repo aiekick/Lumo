@@ -28,7 +28,7 @@ private:
 
 public:
     CubeMapNode();
-    ~CubeMapNode() override;
+    virtual ~CubeMapNode() override;
 
     // Init / Unit
     bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;

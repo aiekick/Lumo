@@ -61,7 +61,6 @@ private:
     ct::fvec2 m_LastNormalizedMousePos;
     ct::fvec2 m_NormalizedMousePos;
 
-    bool m_JustRecoveredFocus = false;
     bool m_MouseDrag = false;
     bool m_NeedRefresh = true;
     bool m_ConsoleVisiblity = false;

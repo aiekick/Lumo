@@ -50,5 +50,5 @@ protected:
     UserNodeLibrary &operator=(const UserNodeLibrary &) {
         return *this;
     };                             // Prevent assignment
-    ~UserNodeLibrary() = default;  // Prevent unwanted destruction
+    virtual ~UserNodeLibrary() = default;  // Prevent unwanted destruction
 };

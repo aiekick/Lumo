@@ -35,7 +35,7 @@ private:
 
 public:
     SceneMergerNode();
-    ~SceneMergerNode() override;
+    virtual ~SceneMergerNode() override;
 
     // Init / Unit
     bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;

@@ -31,7 +31,7 @@ private:
 
 public:
     WidgetColorNode();
-    ~WidgetColorNode() override;
+    virtual ~WidgetColorNode() override;
     bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
     void Unit() override;
     bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;

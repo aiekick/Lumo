@@ -55,7 +55,7 @@ private:
 
 public:
     TextureExporterModule(GaiApi::VulkanCoreWeak vVulkanCore);
-    ~TextureExporterModule();
+    virtual ~TextureExporterModule();
 
     bool Init();
     void Unit();

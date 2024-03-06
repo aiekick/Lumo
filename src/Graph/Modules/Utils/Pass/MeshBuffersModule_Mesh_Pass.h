@@ -60,7 +60,7 @@ private:
 
 public:
     MeshBuffersModule_Mesh_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
-    ~MeshBuffersModule_Mesh_Pass() override;
+    virtual ~MeshBuffersModule_Mesh_Pass() override;
 
     void DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
     bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;

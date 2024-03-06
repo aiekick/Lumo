@@ -243,7 +243,7 @@ void SceneViewPane::m_UpdateCamera(ImVec2 vOrg, ImVec2 vSize) {
     {
         if (canTuneCamera)  // && !ImGuizmo::IsUsing())
         {
-            ct::fvec2 pos = ct::fvec2(ImGui::GetMousePos()) / m_DisplayQuality;
+            //ct::fvec2 pos = ct::fvec2(ImGui::GetMousePos()) / m_DisplayQuality;
             m_CurrNormalizedMousePos.x = (ImGui::GetMousePos().x - vOrg.x) / vSize.x;
             m_CurrNormalizedMousePos.y = (ImGui::GetMousePos().y - vOrg.y) / vSize.y;
 
@@ -262,7 +262,7 @@ void SceneViewPane::m_UpdateCamera(ImVec2 vOrg, ImVec2 vSize) {
     {
         if (canTuneCamera)  // && !ImGuizmo::IsUsing())
         {
-            ct::fvec2 pos = ct::fvec2(ImGui::GetMousePos()) / m_DisplayQuality;
+            //ct::fvec2 pos = ct::fvec2(ImGui::GetMousePos()) / m_DisplayQuality;
             m_CurrNormalizedMousePos.x = (ImGui::GetMousePos().x - vOrg.x) / vSize.x;
             m_CurrNormalizedMousePos.y = (ImGui::GetMousePos().y - vOrg.y) / vSize.y;
 
@@ -282,7 +282,7 @@ void SceneViewPane::m_UpdateCamera(ImVec2 vOrg, ImVec2 vSize) {
     {
         if (canTuneCamera)  // && !ImGuizmo::IsUsing())
         {
-            ct::fvec2 pos = ct::fvec2(ImGui::GetMousePos()) / m_DisplayQuality;
+            //ct::fvec2 pos = ct::fvec2(ImGui::GetMousePos()) / m_DisplayQuality;
             m_CurrNormalizedMousePos.x = (ImGui::GetMousePos().x - vOrg.x) / vSize.x;
             m_CurrNormalizedMousePos.y = (ImGui::GetMousePos().y - vOrg.y) / vSize.y;
 

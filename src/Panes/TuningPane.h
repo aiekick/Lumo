@@ -52,5 +52,5 @@ public:
     TuningPane& operator=(const TuningPane&) {
         return *this;
     };              // Prevent assignment
-    ~TuningPane();  // Prevent unwanted destruction;
+    virtual ~TuningPane();  // Prevent unwanted destruction;
 };

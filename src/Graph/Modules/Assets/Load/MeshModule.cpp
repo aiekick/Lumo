@@ -89,8 +89,12 @@ bool MeshModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vConte
         ImGui::BeginHorizontal("Buttons");
 
         if (ImGui::ContrastedButton("Load")) {
-            ImGuiFileDialog::Instance()->OpenDialog(unique_OpenMeshFileDialog_id, "Open 3D File", "3D files{.obj,.gltf,.ply,.fbx}", m_FilePath,
-                m_FilePathName, 1, nullptr, ImGuiFileDialogFlags_Modal);
+            IGFD::FileDialogConfig config;
+            config.path = m_FilePath;
+            config.filePathName = m_FilePathName;
+            config.countSelectionMax = 1;
+            config.flags = ImGuiFileDialogFlags_Modal;
+            ImGuiFileDialog::Instance()->OpenDialog(unique_OpenMeshFileDialog_id, "Open 3D File", "3D files{.obj,.gltf,.ply,.fbx}", config);
         }
 
         if (ImGui::ContrastedButton("ReLoad")) {

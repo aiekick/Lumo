@@ -38,7 +38,7 @@ private:
 
 public:
     GridModule(GaiApi::VulkanCoreWeak vVulkanCore);
-    ~GridModule() override;
+    virtual ~GridModule() override;
 
     bool Init();
 

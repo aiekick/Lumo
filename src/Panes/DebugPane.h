@@ -57,5 +57,5 @@ public:
     DebugPane& operator=(const DebugPane&) {
         return *this;
     };             // Prevent assignment
-    ~DebugPane();  // Prevent unwanted destruction};
+    virtual ~DebugPane();  // Prevent unwanted destruction};
 };

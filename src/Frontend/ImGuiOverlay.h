@@ -37,11 +37,10 @@ private:
     GaiApi::VulkanCoreWeak m_VulkanCoreWeak;
     VulkanImGuiRendererPtr m_VulkanImGuiRendererPtr = nullptr;
     GaiApi::VulkanWindowWeak m_VulkanWindowWeak;
-    bool m_IsRecording = false;
 
 public:
     ImGuiOverlay();
-    ~ImGuiOverlay();
+    virtual ~ImGuiOverlay();
 
     bool Init(GaiApi::VulkanCoreWeak vVulkanCoreWeak, GaiApi::VulkanWindowWeak vVulkanWindowWeak);
     void Unit();

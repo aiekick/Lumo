@@ -55,7 +55,7 @@ public:
 
 private:
     std::vector<std::string> m_PolygonModes = {"Fill", "Line", "Point"};
-    int32_t m_PolygonModesIndex = 0;
+    //int32_t m_PolygonModesIndex = 0;
 
 	std::vector<std::string> m_PrimitiveTopologies = {
         "Point List",

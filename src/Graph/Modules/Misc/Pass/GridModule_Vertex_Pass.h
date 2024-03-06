@@ -43,7 +43,7 @@ private:
 
 public:
     GridModule_Vertex_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
-    ~GridModule_Vertex_Pass() override;
+    virtual ~GridModule_Vertex_Pass() override;
 
     void ActionBeforeInit() override;
     bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;

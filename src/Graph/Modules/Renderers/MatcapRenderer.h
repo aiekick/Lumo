@@ -51,7 +51,7 @@ private:
 
 public:
     MatcapRenderer(GaiApi::VulkanCoreWeak vVulkanCore);
-    ~MatcapRenderer() override;
+    virtual ~MatcapRenderer() override;
 
     bool Init();
 

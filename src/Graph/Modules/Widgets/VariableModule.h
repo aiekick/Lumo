@@ -40,7 +40,7 @@ private:
 
 public:
     VariableModule();
-    ~VariableModule();
+    virtual ~VariableModule();
 
     bool Init(const std::string& vNodeType);
     void Unit();

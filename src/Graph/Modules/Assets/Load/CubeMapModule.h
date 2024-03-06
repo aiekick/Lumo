@@ -49,7 +49,7 @@ private:
 
 public:
     CubeMapModule(GaiApi::VulkanCoreWeak vVulkanCore);
-    ~CubeMapModule();
+    virtual ~CubeMapModule();
 
     bool Init();
     void Unit();

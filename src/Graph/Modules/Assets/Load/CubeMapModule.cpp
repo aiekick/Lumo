@@ -103,9 +103,14 @@ bool CubeMapModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vCo
     ImGui::SetCurrentContext(vContextPtr);
 
     if (ImGui::ContrastedButton("Load Textures", nullptr, nullptr, -1.0f)) {
+        IGFD::FileDialogConfig config;
+        config.path = m_SelectedFilePath;
+        config.filePathName = m_SelectedFilePathName;
+        config.countSelectionMax = 1;
+        config.flags = ImGuiFileDialogFlags_Modal;
         ImGuiFileDialog::Instance()->OpenDialog(unique_OpenPictureFileDialog_id, "Open CubeMap Face Texture File",
             "CubeMap Faces Textures 2D Files{([a-zA-Z0-9]+_[0-9]+.((png)|(jpg)|(jpeg)))}",  // pattern file_09.png (png, jpg, jpeg)
-            m_SelectedFilePath, m_SelectedFilePathName, 1, nullptr, ImGuiFileDialogFlags_Modal);
+            config);
     }
 
     if (ImGui::ContrastedButton("Reset Textures", nullptr, nullptr, -1.0f)) {

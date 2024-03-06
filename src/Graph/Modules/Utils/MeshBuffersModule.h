@@ -55,7 +55,7 @@ private:
 
 public:
     MeshBuffersModule(GaiApi::VulkanCoreWeak vVulkanCore);
-    ~MeshBuffersModule() override;
+    virtual ~MeshBuffersModule() override;
 
     bool Init();
 

@@ -30,7 +30,7 @@ private:
 
 public:
     ModelExporterNode();
-    ~ModelExporterNode() override;
+    virtual ~ModelExporterNode() override;
 
     // Init / Unit
     bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;

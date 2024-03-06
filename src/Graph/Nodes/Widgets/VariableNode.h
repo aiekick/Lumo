@@ -28,7 +28,7 @@ private:
 
 public:
     VariableNode(const std::string& vNodeType);
-    ~VariableNode() override;
+    virtual ~VariableNode() override;
     bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
     bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;
     bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;

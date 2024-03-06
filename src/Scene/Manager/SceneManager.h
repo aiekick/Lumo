@@ -49,5 +49,5 @@ public:  // singleton
 
 protected:
     SceneManager() = default;
-    ~SceneManager() = default;
+    virtual ~SceneManager() = default;
 };

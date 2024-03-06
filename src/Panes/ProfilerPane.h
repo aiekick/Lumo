@@ -53,5 +53,5 @@ public:
     ProfilerPane& operator=(const ProfilerPane&) {
         return *this;
     };                // Prevent assignment
-    ~ProfilerPane();  // Prevent unwanted destruction};
+    virtual ~ProfilerPane();  // Prevent unwanted destruction};
 };

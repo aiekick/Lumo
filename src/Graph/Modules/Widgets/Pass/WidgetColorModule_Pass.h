@@ -52,7 +52,7 @@ private:
 
 public:
     WidgetColorModule_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
-    ~WidgetColorModule_Pass() override;
+    virtual ~WidgetColorModule_Pass() override;
 
     void Compute(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
     bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;

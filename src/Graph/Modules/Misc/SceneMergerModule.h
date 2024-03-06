@@ -65,7 +65,7 @@ private:
 
 public:
     SceneMergerModule(GaiApi::VulkanCoreWeak vVulkanCore);
-    ~SceneMergerModule() override;
+    virtual ~SceneMergerModule() override;
 
     bool Init();
 

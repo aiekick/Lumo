@@ -37,7 +37,7 @@ private:  // dont save
 public:
     ProjectFile();
     explicit ProjectFile(const std::string& vFilePathName);
-    ~ProjectFile();
+    virtual ~ProjectFile();
 
     void Clear();
     void New();

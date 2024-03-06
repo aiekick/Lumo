@@ -56,7 +56,7 @@ private:
 
 public:
     MatcapRenderer_Mesh_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
-    ~MatcapRenderer_Mesh_Pass() override;
+    virtual ~MatcapRenderer_Mesh_Pass() override;
     void DrawModel(vk::CommandBuffer* vCmdBufferPtr, const int& vIterationNumber) override;
     bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
     bool DrawOverlays(

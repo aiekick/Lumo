@@ -22,7 +22,7 @@ private:
 
 public:
     DisplaySizeQuadRenderer(GaiApi::VulkanCoreWeak vVulkanCore);
-    ~DisplaySizeQuadRenderer() override;
+    virtual ~DisplaySizeQuadRenderer() override;
 
     bool init();
 

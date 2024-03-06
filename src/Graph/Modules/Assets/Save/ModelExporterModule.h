@@ -89,7 +89,7 @@ private:  // to save
 
 public:
     ModelExporterModule(GaiApi::VulkanCoreWeak vVulkanCore);
-    ~ModelExporterModule();
+    virtual ~ModelExporterModule();
 
     bool Init();
     void Unit();

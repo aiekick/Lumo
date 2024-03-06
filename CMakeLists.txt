@@ -210,7 +210,6 @@ if(USE_CONSOLE_APP)
 	endif()
 endif()
 
-target_compile_definitions(${PROJECT} PUBLIC -DPROJECT_NAME=${PROJECT})
 target_compile_definitions(${PROJECT} PRIVATE BUILD_GAIA_SHARED_LIBS)	
 target_compile_definitions(${PROJECT} PRIVATE BUILD_CTOOLS_SHARED_LIBS)	
 target_compile_definitions(${PROJECT} PRIVATE BUILD_IMGUI_PACK_SHARED_LIBS)

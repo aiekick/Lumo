@@ -31,7 +31,7 @@ private:
 
 public:
     Texture2DNode();
-    ~Texture2DNode() override;
+    virtual ~Texture2DNode() override;
     bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
     bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
     bool DrawOverlays(

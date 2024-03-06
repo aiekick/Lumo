@@ -64,7 +64,7 @@ private:
 
 public:
     MathModule_Quad_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
-    ~MathModule_Quad_Pass() override;
+    virtual ~MathModule_Quad_Pass() override;
 
     void ActionBeforeInit() override;
     bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;

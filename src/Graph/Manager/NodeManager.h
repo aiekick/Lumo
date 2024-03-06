@@ -77,5 +77,5 @@ protected:
     NodeManager& operator=(const NodeManager&) {
         return *this;
     };                         // Prevent assignment
-    ~NodeManager() = default;  // Prevent unwanted destruction
+    virtual ~NodeManager() = default;  // Prevent unwanted destruction
 };

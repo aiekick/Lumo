@@ -44,7 +44,7 @@ public:
     bool DrawDialogsAndPopups(
         const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
 
-    void DrawDebugInfos() override;
+    void DrawDebugInfos();
     void DrawProperties();
 
     void Clear();
@@ -72,5 +72,5 @@ public:
     GraphPane& operator=(const GraphPane&) {
         return *this;
     };             // Prevent assignment
-    ~GraphPane();  // Prevent unwanted destruction};
+    virtual ~GraphPane();  // Prevent unwanted destruction};
 };

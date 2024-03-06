@@ -461,7 +461,7 @@ bool MathModule_Quad_Pass::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XML
 bool MathModule_Quad_Pass::DrawNodeWidget(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr) {
     assert(m_UBOFrag.u_Function_index < (int32_t)m_Functions.size());
 
-    ImGui::Text(std::get<0>(m_Functions.at(m_UBOFrag.u_Function_index)).c_str());
+    ImGui::Text("%s", std::get<0>(m_Functions.at(m_UBOFrag.u_Function_index)).c_str());
 
     return false;
 }

@@ -75,5 +75,5 @@ public:
     View2DPane& operator=(const View2DPane&) {
         return *this;
     };              // Prevent assignment
-    ~View2DPane();  // Prevent unwanted destruction;
+    virtual ~View2DPane();  // Prevent unwanted destruction;
 };

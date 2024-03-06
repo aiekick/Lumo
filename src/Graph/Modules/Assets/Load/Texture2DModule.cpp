@@ -85,8 +85,12 @@ bool Texture2DModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* v
     ZoneScoped;
 
     if (ImGui::ContrastedButton("Load Texture 2D", nullptr, nullptr, -1.0f)) {
-        ImGuiFileDialog::Instance()->OpenDialog(unique_OpenPictureFileDialog_id, "Open Texture 2D File", "Texture 2D files{.png,.jpg,.jpeg}",
-            m_FilePath, m_FilePathName, 1, nullptr, ImGuiFileDialogFlags_Modal);
+        IGFD::FileDialogConfig config;
+        config.path = m_FilePath;
+        config.filePathName = m_FilePathName;
+        config.countSelectionMax = 1;
+        config.flags = ImGuiFileDialogFlags_Modal;
+        ImGuiFileDialog::Instance()->OpenDialog(unique_OpenPictureFileDialog_id, "Open Texture 2D File", "Texture 2D files{.png,.jpg,.jpeg}", config);
     }
 
     if (ImGui::ContrastedButton("Reset Texture 2D", nullptr, nullptr, -1.0f)) {

@@ -27,7 +27,7 @@ private:
 
 public:
     TextureExporterNode();
-    ~TextureExporterNode() override;
+    virtual ~TextureExporterNode() override;
 
     // Init / Unit
     bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;

@@ -34,7 +34,7 @@ private:
     ct::irect m_PreviewRect;
     VulkanImGuiRendererWeak m_VulkanImGuiRenderer;
 
-    uint32_t m_PreviewBufferId = 0;
+    //uint32_t m_PreviewBufferId = 0;
     bool m_CanWeTuneCamera = true;
     bool m_CanWeTuneMouse = true;
     bool m_DisplayPictureByRatio = true;
@@ -44,7 +44,7 @@ private:
     ct::fvec2 m_LastNormalizedMousePos;
     bool m_MouseDrag = false;
     bool m_UINeedRefresh = false;
-    uint32_t m_MaxBuffers = 0;
+    //uint32_t m_MaxBuffers = 0;
 
     // for send the resize event to nodes
     ct::ivec2 m_PaneSize;
@@ -83,5 +83,5 @@ public:
     SceneViewPane& operator=(const SceneViewPane&) {
         return *this;
     };              // Prevent assignment
-    ~SceneViewPane();  // Prevent unwanted destruction;
+    virtual ~SceneViewPane();  // Prevent unwanted destruction;
 };

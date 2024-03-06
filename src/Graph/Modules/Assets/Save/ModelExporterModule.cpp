@@ -156,8 +156,12 @@ bool ModelExporterModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
                 change |= ImGui::CheckBoxBoolDefault("Export Normals", &m_ExportNormals, true);
                 change |= ImGui::CheckBoxBoolDefault("Export Vertexs Color", &m_ExportVertexColors, true);
                 if (ImGui::ContrastedButton("Set 3D file path name")) {
-                    ImGuiFileDialog::Instance()->OpenDialog(unique_SavePathFileDialog_id, "Save 3D File", ".ply,.dae", m_FilePath, m_FilePathName, 1,
-                        nullptr, ImGuiFileDialogFlags_Modal);
+                    IGFD::FileDialogConfig config;
+                    config.path = m_FilePath;
+                    config.filePathName = m_FilePathName;
+                    config.countSelectionMax = 1;
+                    config.flags = ImGuiFileDialogFlags_Modal;
+                    ImGuiFileDialog::Instance()->OpenDialog(unique_SavePathFileDialog_id, "Save 3D File", ".ply,.dae", config);
                 }
             }
             if (ImGui::ContrastedButton("Start Auto Saver")) {
@@ -170,8 +174,12 @@ bool ModelExporterModule::DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContex
     ImGui::Header("Manual export");
     if (ImGui::ContrastedButton("Save Model")) {
         // tofix : gltf export crash ...
-        ImGuiFileDialog::Instance()->OpenDialog(
-            unique_SaveMeshFileDialog_id, "Save 3D File", ".ply,.dae", m_FilePath, m_FilePathName, 1, nullptr, ImGuiFileDialogFlags_Modal);
+        IGFD::FileDialogConfig config;
+        config.path = m_FilePath;
+        config.filePathName = m_FilePathName;
+        config.countSelectionMax = 1;
+        config.flags = ImGuiFileDialogFlags_Modal;
+        ImGuiFileDialog::Instance()->OpenDialog(unique_SaveMeshFileDialog_id, "Save 3D File", ".ply,.dae", config);
     }
 
     if (change) {

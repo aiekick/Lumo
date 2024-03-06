@@ -16,8 +16,6 @@
 #define ZoneScoped
 #endif
 
-static int SourcePane_WidgetId = 0;
-
 ConsolePane::ConsolePane() = default;
 ConsolePane::~ConsolePane() {
     Unit();

@@ -60,7 +60,7 @@ private:
 
 public:
     MathModule(GaiApi::VulkanCoreWeak vVulkanCore);
-    ~MathModule() override;
+    virtual ~MathModule() override;
 
     bool Init();
 

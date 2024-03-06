@@ -498,7 +498,10 @@ void MainFrontend::Action_Menu_NewProject() {
     Action_OpenUnSavedDialog_IfNeeded();
     m_ActionSystem.Add([this]() {
         CloseUnSavedDialog();
-        ImGuiFileDialog::Instance()->OpenDialog("NewProjectDlg", "New Project File", ".lum", "", 1, nullptr, ImGuiFileDialogFlags_Modal);
+        IGFD::FileDialogConfig config;
+        config.countSelectionMax = 1;
+        config.flags = ImGuiFileDialogFlags_Modal;
+        ImGuiFileDialog::Instance()->OpenDialog("NewProjectDlg", "New Project File", ".lum", config);
         return true;
     });
     m_ActionSystem.Add([this]() { return Display_NewProjectDialog(); });
@@ -517,7 +520,10 @@ void MainFrontend::Action_Menu_OpenProject() {
     Action_OpenUnSavedDialog_IfNeeded();
     m_ActionSystem.Add([this]() {
         CloseUnSavedDialog();
-        ImGuiFileDialog::Instance()->OpenDialog("OpenProjectDlg", "Open Project File", ".lum", "", 1, nullptr, ImGuiFileDialogFlags_Modal);
+        IGFD::FileDialogConfig config;
+        config.countSelectionMax = 1;
+        config.flags = ImGuiFileDialogFlags_Modal;
+        ImGuiFileDialog::Instance()->OpenDialog("OpenProjectDlg", "Open Project File", ".lum", config);
         return true;
     });
     m_ActionSystem.Add([this]() { return Display_OpenProjectDialog(); });
@@ -534,7 +540,7 @@ void MainFrontend::Action_Menu_ReOpenProject() {
     */
     m_ActionSystem.Clear();
     Action_OpenUnSavedDialog_IfNeeded();
-    m_ActionSystem.Add([this]() {
+    m_ActionSystem.Add([]() {
         MainBackend::Instance()->NeedToLoadProject(ProjectFile::Instance()->GetProjectFilepathName());
         return true;
     });
@@ -552,7 +558,10 @@ void MainFrontend::Action_Menu_SaveProject() {
     m_ActionSystem.Add([this]() {
         if (!MainBackend::Instance()->SaveProject()) {
             CloseUnSavedDialog();
-            ImGuiFileDialog::Instance()->OpenDialog("SaveProjectDlg", "Save Project File", ".lum", "", 1, nullptr, ImGuiFileDialogFlags_Modal);
+            IGFD::FileDialogConfig config;
+            config.countSelectionMax = 1;
+            config.flags = ImGuiFileDialogFlags_Modal;
+            ImGuiFileDialog::Instance()->OpenDialog("SaveProjectDlg", "Save Project File", ".lum", config);
         }
         return true;
     });
@@ -567,8 +576,10 @@ void MainFrontend::Action_Menu_SaveAsProject() {
     m_ActionSystem.Clear();
     m_ActionSystem.Add([this]() {
         CloseUnSavedDialog();
-        ImGuiFileDialog::Instance()->OpenDialog(
-            "SaveProjectDlg", "Save Project File", ".lum", "", 1, nullptr, ImGuiFileDialogFlags_ConfirmOverwrite | ImGuiFileDialogFlags_Modal);
+        IGFD::FileDialogConfig config;
+        config.countSelectionMax = 1;
+        config.flags = ImGuiFileDialogFlags_ConfirmOverwrite | ImGuiFileDialogFlags_Modal;
+        ImGuiFileDialog::Instance()->OpenDialog("SaveProjectDlg", "Save Project File", ".lum", config);
         return true;
     });
     m_ActionSystem.Add([this]() { return Display_SaveProjectDialog(); });
@@ -585,7 +596,7 @@ void MainFrontend::Action_Menu_CloseProject() {
     */
     m_ActionSystem.Clear();
     Action_OpenUnSavedDialog_IfNeeded();
-    m_ActionSystem.Add([this]() {
+    m_ActionSystem.Add([]() {
         MainBackend::Instance()->NeedToCloseProject();
         return true;
     });
@@ -605,7 +616,7 @@ void MainFrontend::Action_Window_CloseApp() {
 
     m_ActionSystem.Clear();
     Action_OpenUnSavedDialog_IfNeeded();
-    m_ActionSystem.Add([this]() {
+    m_ActionSystem.Add([]() {
         MainBackend::Instance()->CloseApp();
         return true;
     });
@@ -634,8 +645,11 @@ bool MainFrontend::Action_UnSavedDialog_SaveProject() {
         m_ActionSystem.Insert([this]() { return Display_SaveProjectDialog(); });
         m_ActionSystem.Insert([this]() {
             CloseUnSavedDialog();
-            ImGuiFileDialog::Instance()->OpenDialog(
-                "SaveProjectDlg", "Save Project File", ".lum", ".", 1, nullptr, ImGuiFileDialogFlags_ConfirmOverwrite | ImGuiFileDialogFlags_Modal);
+            IGFD::FileDialogConfig config;
+            config.countSelectionMax = 1;
+            config.flags = ImGuiFileDialogFlags_ConfirmOverwrite | ImGuiFileDialogFlags_Modal;
+            config.path = ".";
+            ImGuiFileDialog::Instance()->OpenDialog("SaveProjectDlg", "Save Project File", ".lum", config);
             return true;
         });
     }
@@ -646,8 +660,11 @@ void MainFrontend::Action_UnSavedDialog_SaveAsProject() {
     m_ActionSystem.Insert([this]() { return Display_SaveProjectDialog(); });
     m_ActionSystem.Insert([this]() {
         CloseUnSavedDialog();
-        ImGuiFileDialog::Instance()->OpenDialog(
-            "SaveProjectDlg", "Save Project File", ".lum", ".", 1, nullptr, ImGuiFileDialogFlags_ConfirmOverwrite | ImGuiFileDialogFlags_Modal);
+        IGFD::FileDialogConfig config;
+        config.countSelectionMax = 1;
+        config.flags = ImGuiFileDialogFlags_ConfirmOverwrite | ImGuiFileDialogFlags_Modal;
+        config.path = ".";
+        ImGuiFileDialog::Instance()->OpenDialog("SaveProjectDlg", "Save Project File", ".lum", config);
         return true;
     });
 }
@@ -807,7 +824,9 @@ std::string MainFrontend::getXml(const std::string& vOffset, const std::string& 
 
     str += ImGuiThemeHelper::Instance()->getXml(vOffset);
     str += LayoutManager::Instance()->getXml(vOffset, "app");
-    str += vOffset + "<bookmarks>" + ImGuiFileDialog::Instance()->SerializeBookmarks() + "</bookmarks>\n";
+#ifdef USE_PLACES_FEATURE
+    str += vOffset + "<places>" + ImGuiFileDialog::Instance()->SerializePlaces() + "</places>\n";
+#endif
     str += vOffset + "<showaboutdialog>" + (m_ShowAboutDialog ? "true" : "false") + "</showaboutdialog>\n";
     str += vOffset + "<showimgui>" + (m_ShowImGui ? "true" : "false") + "</showimgui>\n";
     str += vOffset + "<showmetric>" + (m_ShowMetric ? "true" : "false") + "</showmetric>\n";
@@ -832,8 +851,10 @@ bool MainFrontend::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement*
     ImGuiThemeHelper::Instance()->setFromXml(vElem, vParent);
     LayoutManager::Instance()->setFromXml(vElem, vParent, "app");
 
-    if (strName == "bookmarks") {
-        ImGuiFileDialog::Instance()->DeserializeBookmarks(strValue);
+    if (strName == "places") {
+#ifdef USE_PLACES_FEATURE
+        ImGuiFileDialog::Instance()->DeserializePlaces(strValue);
+#endif
     } else if (strName == "showaboutdialog") {
         m_ShowAboutDialog = ct::ivariant(strValue).GetB();
     } else if (strName == "showimgui") {

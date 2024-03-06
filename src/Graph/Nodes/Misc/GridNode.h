@@ -32,7 +32,7 @@ private:
 
 public:
     GridNode();
-    ~GridNode() override;
+    virtual ~GridNode() override;
     bool Init(GaiApi::VulkanCoreWeak vVulkanCore) override;
     void Unit() override;
     bool ExecuteAllTime(const uint32_t& vCurrentFrame, vk::CommandBuffer* vCmd = nullptr, BaseNodeState* vBaseNodeState = nullptr) override;

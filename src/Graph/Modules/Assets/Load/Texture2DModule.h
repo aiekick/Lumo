@@ -44,7 +44,7 @@ private:
 
 public:
     Texture2DModule(GaiApi::VulkanCoreWeak vVulkanCore);
-    ~Texture2DModule();
+    virtual ~Texture2DModule();
 
     bool Init();
     void Unit();

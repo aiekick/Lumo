@@ -57,7 +57,7 @@ private:
 
 public:
     WidgetColorModule(GaiApi::VulkanCoreWeak vVulkanCore);
-    ~WidgetColorModule() override;
+    virtual ~WidgetColorModule() override;
 
     bool Init();
 
