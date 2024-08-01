@@ -391,7 +391,7 @@ bool BaseRenderer::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRe
 }
 
 bool BaseRenderer::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -399,7 +399,7 @@ bool BaseRenderer::DrawDialogsAndPopups(
     for (auto pass : m_ShaderPasses) {
         auto pass_ptr = pass.lock();
         if (pass_ptr) {
-            change |= pass_ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+            change |= pass_ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxRect, vContextPtr, vUserDatas);
         }
     }
     return change;

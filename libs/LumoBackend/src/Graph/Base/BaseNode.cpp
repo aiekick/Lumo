@@ -973,15 +973,13 @@ bool BaseNode::DrawWidgets(const uint32_t& /*vCurrentFrame*/, ImGuiContext* vCon
     return false;
 }
 
-bool BaseNode::DrawOverlays(
-    const uint32_t& /*vCurrentFrame*/, const ImRect& /*vRect*/, ImGuiContext* vContextPtr, void* /*vUserDatas*/) {
+bool BaseNode::DrawOverlays(const uint32_t& /*vCurrentFrame*/, const ImRect& /*vRect*/, ImGuiContext* vContextPtr, void* /*vUserDatas*/) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
     return false;
 }
 
-bool BaseNode::DrawDialogsAndPopups(
-    const uint32_t& /*vCurrentFrame*/, const ImVec2& /*vMaxSize*/, ImGuiContext* vContextPtr, void* /*vUserDatas*/) {
+bool BaseNode::DrawDialogsAndPopups(const uint32_t& /*vCurrentFrame*/, const ImRect& /*vMaxRect*/, ImGuiContext* vContextPtr, void* /*vUserDatas*/) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
     return false;
@@ -2247,6 +2245,14 @@ std::vector<NodeSlotWeak> BaseNode::InjectTypeInSlot(NodeSlotWeak vSlotToSplit, 
 //// CONFIGURATION ///////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
+static inline ct::fvec2 toFVec2(const ImVec2& v) {
+    return ct::fvec2(v.x, v.y);
+}
+
+static inline ImVec2 toImVec2(const ct::fvec2& v) {
+    return ImVec2(v.x, v.y);
+}
+
 std::string BaseNode::getXml(const std::string& vOffset, const std::string& vUserDatas) {
     std::string res;
 
@@ -2254,7 +2260,7 @@ std::string BaseNode::getXml(const std::string& vOffset, const std::string& vUse
         res += vOffset + "<graph>\n";
 
         res += vOffset + "\t<canvas>\n";
-        res += vOffset + "\t\t<offset>" + ct::fvec2(GetCanvasOffset()).string() + "</offset>\n";
+        res += vOffset + "\t\t<offset>" + toFVec2(GetCanvasOffset()).string() + "</offset>\n";
         res += vOffset + "\t\t<scale>" + ct::toStr(GetCanvasScale()) + "</scale>\n";
         res += vOffset + "\t</canvas>\n";
 
@@ -2357,11 +2363,11 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
         strParentName = vParent->Value();
 
     if (strParentName == "canvas") {
-        if (strName == "offset")
-            SetCanvasOffset(ct::toImVec2(ct::fvariant(strValue).GetV2()));
-        else if (strName == "scale")
+        if (strName == "offset") {
+            SetCanvasOffset(toImVec2(ct::fvariant(strValue).GetV2()));
+        } else if (strName == "scale") {
             SetCanvasScale(ct::fvariant(strValue).GetF());
-
+        }
         return false;
     } else if (strParentName == "nodes") {
         if (strName == "node") {
@@ -2369,11 +2375,9 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
             std::string _type;
             ct::fvec2 _pos;
             uint32_t _nodeId = 0;
-
             for (const tinyxml2::XMLAttribute* attr = vElem->FirstAttribute(); attr != nullptr; attr = attr->Next()) {
                 std::string attName = attr->Name();
                 std::string attValue = attr->Value();
-
                 if (attName == "name")
                     _name = attValue;
                 else if (attName == "type")
@@ -2383,11 +2387,9 @@ bool BaseNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vPa
                 else if (attName == "id")
                     _nodeId = ct::ivariant(attValue).GetU();
             }
-
             if (LoadNodeFromXML_Callback(m_This, vElem, vParent, _name, _type, _pos, _nodeId)) {
                 RecursParsingConfigChilds(vElem, vUserDatas);
             }
-
             return false;
         }
     } else if (strParentName == "links") {

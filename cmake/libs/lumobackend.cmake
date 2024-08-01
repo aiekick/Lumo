@@ -11,7 +11,7 @@ set(USE_MSVC_RUNTIME_LIBRARY_DLL ON CACHE BOOL "")
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/libs/LumoBackend)
 
-set_target_properties(LumoBackend PROPERTIES FOLDER Libs/Shared)
+set_target_properties(LumoBackend PROPERTIES FOLDER 3rdparty/Shared/aiekick)
 
 set_target_properties(LumoBackend PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}")
 set_target_properties(LumoBackend PROPERTIES RUNTIME_OUTPUT_DIRECTORY_DEBUG "${FINAL_BIN_DIR}")

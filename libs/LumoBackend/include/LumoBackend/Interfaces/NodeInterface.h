@@ -21,6 +21,7 @@ limitations under the License.
 #include <LumoBackend/Graph/Graph.h>
 #include <ctools/cTools.h>
 #include <LumoBackend/Headers/LumoBackendDefs.h>
+#include <ImGuiPack.h>
 
 class LUMO_BACKEND_API NodeInterface {
 protected:

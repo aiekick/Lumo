@@ -116,11 +116,11 @@ bool Texture2DModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& 
 }
 
 bool Texture2DModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
-    ImVec2 max = ImVec2((float)vMaxSize.x, (float)vMaxSize.y);
+    ImVec2 max = vMaxRect.GetSize();
     ImVec2 min = max * 0.5f;
 
     if (ImGuiFileDialog::Instance()->Display(unique_OpenPictureFileDialog_id, ImGuiWindowFlags_NoCollapse, min, max)) {
@@ -137,9 +137,9 @@ bool Texture2DModule::DrawDialogsAndPopups(
     return false;
 }
 
-void Texture2DModule::DrawTexture(ct::ivec2 vMaxSize) {
+void Texture2DModule::DrawTexture(ct::ivec2 vMaxRect) {
     if (m_ImGuiTexture.canDisplayPreview) {
-        auto rect = ct::GetScreenRectWithRatio<int32_t>(m_ImGuiTexture.ratio, vMaxSize, false);
+        auto rect = ct::GetScreenRectWithRatio<int32_t>(m_ImGuiTexture.ratio, vMaxRect, false);
 
         const ImVec2 pos = ImVec2((float)rect.x, (float)rect.y);
         const ImVec2 siz = ImVec2((float)rect.w, (float)rect.h);

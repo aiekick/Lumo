@@ -142,13 +142,13 @@ bool CubeMapModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vR
 }
 
 bool CubeMapModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
-    ImVec2 max = ImVec2((float)vMaxSize.x, (float)vMaxSize.y);
+    ImVec2 max = vMaxRect.GetSize();
     ImVec2 min = max * 0.5f;
 
     if (ImGuiFileDialog::Instance()->Display(unique_OpenPictureFileDialog_id, ImGuiWindowFlags_NoCollapse, min, max)) {
@@ -258,7 +258,7 @@ void CubeMapModule::ClearTextures() {
     }
 }
 
-void CubeMapModule::DrawTextures(const ct::ivec2& vMaxSize, const float& vRounding) {
+void CubeMapModule::DrawTextures(const ct::ivec2& vMaxRect, const float& vRounding) {
     if (m_TextureCubePtr) {
         ImGuiWindow* window = ImGui::GetCurrentWindow();
         if (window->SkipItems)
@@ -274,9 +274,9 @@ void CubeMapModule::DrawTextures(const ct::ivec2& vMaxSize, const float& vRoundi
         static int32_t roundedCorners[3U][4U] = {{0, ImDrawFlags_RoundCornersTop, 0, 0},
             {ImDrawFlags_RoundCornersLeft, 0, 0, ImDrawFlags_RoundCornersRight}, {0, ImDrawFlags_RoundCornersBottom, 0, 0}};
 
-        const ImVec2 size = ImVec2((float)vMaxSize.x / 4.0f, (float)vMaxSize.y / 3.0f);
+        const ImVec2 size = ImVec2((float)vMaxRect.x / 4.0f, (float)vMaxRect.y / 3.0f);
         const ImVec2 spos = window->DC.CursorPos;
-        const ImRect bb(spos, spos + ImVec2((float)vMaxSize.x, (float)vMaxSize.y));
+        const ImRect bb(spos, spos + ImVec2((float)vMaxRect.x, (float)vMaxRect.y));
         ImGui::ItemSize(bb);
         if (!ImGui::ItemAdd(bb, 0))
             return;

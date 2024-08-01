@@ -67,14 +67,14 @@ void View3DPane::Unit() {
 //// IMGUI PANE ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-bool View3DPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, void* vUserDatas) {
+bool View3DPane::DrawPanes(const uint32_t& vCurrentFrame, bool* vOpened, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     bool change = false;
 
-    if (vInOutPaneShown & paneFlag) {
+    if (vOpened && *vOpened) {
         static ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_MenuBar;
-        if (ImGui::Begin<PaneFlags>(paneName.c_str(), &vInOutPaneShown, paneFlag, flags)) {
+        if (ImGui::Begin(GetName().c_str(), vOpened, flags)) {
 #ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
             auto win = ImGui::GetCurrentWindowRead();
             if (win->Viewport->Idx != 0)
@@ -103,7 +103,8 @@ bool View3DPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneS
                         ImGui::EndMenuBar();
                     }
 
-                    ct::ivec2 contentSize = ImGui::GetContentRegionAvail();
+                    const auto& av = ImGui::GetContentRegionAvail();
+                    ct::ivec2 contentSize(av.x, av.y);
 
                     if (m_ImGuiTexture.canDisplayPreview) {
                         m_PreviewRect = ct::GetScreenRectWithRatio<int32_t>(m_ImGuiTexture.ratio, contentSize, false);
@@ -122,8 +123,9 @@ bool View3DPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneS
                         if (ImGui::IsWindowHovered()) {
                             if (ImGui::IsMouseHoveringRect(org, org + siz)) {
                                 if (m_CanWeTuneMouse && m_CanUpdateMouse(true, 0)) {
-                                    ct::fvec2 norPos = (ImGui::GetMousePos() - org) / siz;
-                                    CommonSystem::Instance()->SetMousePos(norPos, m_PaneSize, ImGui::GetCurrentContext()->IO.MouseDown);
+                                    const auto& norPos = (ImGui::GetMousePos() - org) / siz;
+                                    CommonSystem::Instance()->SetMousePos(
+                                        ct::fvec2(norPos.x, norPos.y), m_PaneSize, ImGui::GetCurrentContext()->IO.MouseDown);
                                 }
 
                                 m_UpdateCamera(org, siz);
@@ -136,7 +138,7 @@ bool View3DPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneS
                         }
                     }
 
-                    // on test ca car si le vue n'est pas visible cad si maxSize.y est inferieur a 0 alors
+                    // on test ca car si le vue n'est pas visible cad si contentSize.y est inferieur a 0 alors
                     // on a affaire a un resize constant, car outputsize n'est jamais maj, tant que la vue n'a pas rendu
                     // et ca casse le fps de l'ui, rendu son utilisation impossible ( deltatime superieur 32ms d'apres tracy sur un gtx 1050 Ti)
                     if (contentSize.x > 0 && contentSize.y > 0) {
@@ -167,9 +169,9 @@ bool View3DPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneS
 ///////////////////////////////////////////////////////////////////////////////////
 
 bool View3DPane::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     UNUSED(vCurrentFrame);
-    UNUSED(vMaxSize);
+    UNUSED(vMaxRect);
     ImGui::SetCurrentContext(vContextPtr);
     UNUSED(vUserDatas);
     return false;

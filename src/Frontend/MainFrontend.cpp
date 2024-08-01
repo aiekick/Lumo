@@ -90,20 +90,16 @@ bool MainFrontend::init() {
 
     LayoutManager::Instance()->Init("Layouts", "Default Layout");
 
-    LayoutManager::Instance()->SetPaneDisposalSize(PaneDisposal::LEFT, 300.0f);
-    LayoutManager::Instance()->SetPaneDisposalSize(PaneDisposal::RIGHT, 300.0f);
-    LayoutManager::Instance()->SetPaneDisposalSize(PaneDisposal::BOTTOM, 300.0f);
-
-    LayoutManager::Instance()->AddPane(DebugPane::Instance(), "Debug Pane", "", PaneDisposal::CENTRAL, false, false);
-    LayoutManager::Instance()->AddPane(SceneTreePane::Instance(), "Scene Tree Pane", "", PaneDisposal::RIGHT, false, false);
-    LayoutManager::Instance()->AddPane(SceneViewPane::Instance(), "Scene View Pane", "", PaneDisposal::LEFT, true, true);
-    LayoutManager::Instance()->AddPane(GraphPane::Instance(), "Graph Pane", "", PaneDisposal::CENTRAL, true, false);
-    LayoutManager::Instance()->AddPane(TuningPane::Instance(), "Tuning Pane", "", PaneDisposal::RIGHT, true, false);
-    LayoutManager::Instance()->AddPane(View3DPane::Instance(), "View3D Pane", "", PaneDisposal::LEFT, true, true);
-    LayoutManager::Instance()->AddPane(View2DPane::Instance(), "View2D Pane", "", PaneDisposal::LEFT, false, false);
-    LayoutManager::Instance()->AddPane(ConsolePane::Instance(), "Console Pane", "", PaneDisposal::BOTTOM, false, false);
-    LayoutManager::Instance()->AddPane(ProfilerPane::Instance(), "Profiler Pane", "", PaneDisposal::BOTTOM, false, false);
-    // LayoutManager::Instance()->AddPane(AnimatePane::Instance(), "Animate Pane", "", PaneDisposal::BOTTOM, false, false);
+    LayoutManager::Instance()->AddPane(DebugPane::Instance(), "Debug Pane", "", "CENTRAL", 0.0f, false, false);
+    LayoutManager::Instance()->AddPane(SceneTreePane::Instance(), "Scene Tree Pane", "", "RIGHT", 0.3f, false, false);
+    LayoutManager::Instance()->AddPane(SceneViewPane::Instance(), "Scene View Pane", "", "LEFT", 0.3f, true, true);
+    LayoutManager::Instance()->AddPane(GraphPane::Instance(), "Graph Pane", "", "CENTRAL", 0.0f, true, false);
+    LayoutManager::Instance()->AddPane(TuningPane::Instance(), "Tuning Pane", "", "RIGHT", 0.3f, true, false);
+    LayoutManager::Instance()->AddPane(View3DPane::Instance(), "View3D Pane", "", "LEFT", 0.3f, true, true);
+    LayoutManager::Instance()->AddPane(View2DPane::Instance(), "View2D Pane", "", "LEFT", 0.3f, false, false);
+    LayoutManager::Instance()->AddPane(ConsolePane::Instance(), "Console Pane", "", "BOTTOM", 0.3f, false, false);
+    LayoutManager::Instance()->AddPane(ProfilerPane::Instance(), "Profiler Pane", "", "BOTTOM", 0.3f, false, false);
+    // LayoutManager::Instance()->AddPane(AnimatePane::Instance(), "Animate Pane", "", "BOTTOM", 0.3f, false, false);
 
     // InitPänes is done in m_InitPanes, because a specific order is needed
 
@@ -158,7 +154,7 @@ void MainFrontend::Display(const uint32_t& vCurrentFrame) {
             ProjectFile::Instance()->SetProjectChange();
         }
 
-        DrawDialogsAndPopups(vCurrentFrame, MainBackend::Instance()->GetDisplaySize(), context_ptr, {});
+        DrawDialogsAndPopups(vCurrentFrame, MainBackend::Instance()->GetDisplayRect(), context_ptr, {});
 
         ImGuiThemeHelper::Instance()->Draw();
         LayoutManager::Instance()->InitAfterFirstDisplay(io.DisplaySize);
@@ -198,9 +194,9 @@ bool MainFrontend::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRe
 }
 
 bool MainFrontend::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     m_ActionSystem.RunActions();
-    LayoutManager::Instance()->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+    LayoutManager::Instance()->DrawDialogsAndPopups(vCurrentFrame, vMaxRect, vContextPtr, vUserDatas);
     if (m_ShowImGui) {
         ImGui::ShowDemoWindow(&m_ShowImGui);
     }
@@ -359,15 +355,15 @@ void MainFrontend::m_drawLeftButtonBar() {
             if (ImGui::CoolBarItem()) {  // Debug Pane
                 const auto aw = ImGui::GetCoolBarItemWidth();
                 m_ToolbarFontPtr->Scale = font_scale_ratio * ImGui::GetCoolBarItemScale();
-                ImGui::RadioButtonLabeled_BitWize<PaneFlags>(ImVec2(aw, aw), DEBUG_PANE_ICON "##Debug", nullptr,
-                    &LayoutManager::Instance()->pane_Shown, DebugPane::Instance()->paneFlag, false, true, 0, false, m_ToolbarFontPtr);
+                ImGui::RadioButtonLabeled_BitWize<LayoutPaneFlag>(ImVec2(aw, aw), DEBUG_PANE_ICON "##Debug", nullptr,
+                    &LayoutManager::Instance()->pane_Shown, DebugPane::Instance()->GetFlag(), false, true, 0, false, m_ToolbarFontPtr);
             }
 #endif  // _DEBUG
 
             /*if (ImGui::CoolBarItem()) {  // show/hide Scene Pane
                 const auto aw           = ImGui::GetCoolBarItemWidth();
                 m_ToolbarFontPtr->Scale = font_scale_ratio * ImGui::GetCoolBarItemScale();
-                ImGui::RadioButtonLabeled_BitWize<PaneFlags>(ImVec2(aw, aw),
+                ImGui::RadioButtonLabeled_BitWize<LayoutPaneFlag>(ImVec2(aw, aw),
                                                              SCENE_PANE_ICON "##Scene",
                                                              nullptr,
                                                              &LayoutManager::Instance()->pane_Shown,
@@ -382,8 +378,8 @@ void MainFrontend::m_drawLeftButtonBar() {
             if (ImGui::CoolBarItem()) {  // show/hide Tuning Pane
                 const auto aw = ImGui::GetCoolBarItemWidth();
                 m_ToolbarFontPtr->Scale = font_scale_ratio * ImGui::GetCoolBarItemScale();
-                ImGui::RadioButtonLabeled_BitWize<PaneFlags>(ImVec2(aw, aw), TUNING_PANE_ICON "##Tuning", nullptr,
-                    &LayoutManager::Instance()->pane_Shown, TuningPane::Instance()->paneFlag, false, true, 0, false, m_ToolbarFontPtr);
+                ImGui::RadioButtonLabeled_BitWize<LayoutPaneFlag>(ImVec2(aw, aw), TUNING_PANE_ICON "##Tuning", nullptr,
+                    &LayoutManager::Instance()->pane_Shown, TuningPane::Instance()->GetFlag(), false, true, 0, false, m_ToolbarFontPtr);
             }
 
             if (ImGui::CoolBarItem()) {  // show/hide Grid Renderer

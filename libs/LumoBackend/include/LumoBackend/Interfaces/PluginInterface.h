@@ -23,7 +23,6 @@ limitations under the License.
 
 #include <ctools/cTools.h>
 #include <ctools/ConfigAbstract.h>
-#include <AbstractPane.h>
 
 #include <LumoBackend/Graph/Graph.h>
 #include <LumoBackend/Headers/LumoBackendDefs.h>
@@ -83,7 +82,8 @@ public:
     AbstractPaneWeak paneWeak;
     std::string paneName;
     std::string paneCategory;
-    PaneDisposal paneDisposal = PaneDisposal::CENTRAL;
+    float paneRatio = 0.0f;
+    PaneDisposal paneDisposal = "CENTRAL";
     bool isPaneOpenedDefault = false;
     bool isPaneFocusedDefault = false;
 
@@ -92,11 +92,13 @@ public:
         std::string vName,
         std::string vPaneCategory,
         PaneDisposal vPaneDisposal,
+        float vPaneRatio,
         bool vIsOpenedDefault,
         bool vIsFocusedDefault)
         : paneWeak(vPaneWeak),
           paneName(vName),
           paneCategory(vPaneCategory),
+          paneRatio(vPaneRatio),
           paneDisposal(vPaneDisposal),
           isPaneOpenedDefault(vIsOpenedDefault),
           isPaneFocusedDefault(vIsFocusedDefault) {

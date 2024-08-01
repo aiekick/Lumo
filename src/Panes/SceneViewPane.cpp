@@ -64,14 +64,14 @@ void SceneViewPane::Unit() {
 //// IMGUI PANE ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-bool SceneViewPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, void* vUserDatas) {
+bool SceneViewPane::DrawPanes(const uint32_t& vCurrentFrame, bool* vOpened, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     bool change = false;
 
-    if (vInOutPaneShown & paneFlag) {
+    if (vOpened && *vOpened) {
         static ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_MenuBar;
-        if (ImGui::Begin<PaneFlags>(paneName.c_str(), &vInOutPaneShown, paneFlag, flags)) {
+        if (ImGui::Begin(GetName().c_str(), vOpened, flags)) {
 #ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
             auto win = ImGui::GetCurrentWindowRead();
             if (win->Viewport->Idx != 0)
@@ -95,7 +95,8 @@ bool SceneViewPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPa
                     ImGui::EndMenuBar();
                 }
 
-                ct::ivec2 contentSize = ImGui::GetContentRegionAvail();
+                const auto& av = ImGui::GetContentRegionAvail();
+                ct::ivec2 contentSize(av.x, av.y);
 
                 if (m_ImGuiTexture.canDisplayPreview) {
                     m_PreviewRect = ct::GetScreenRectWithRatio<int32_t>(m_ImGuiTexture.ratio, contentSize, false);
@@ -114,8 +115,9 @@ bool SceneViewPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPa
                     if (ImGui::IsWindowHovered()) {
                         if (ImGui::IsMouseHoveringRect(org, org + siz)) {
                             if (m_CanWeTuneMouse && m_CanUpdateMouse(true, 0)) {
-                                ct::fvec2 norPos = (ImGui::GetMousePos() - org) / siz;
-                                CommonSystem::Instance()->SetMousePos(norPos, m_PaneSize, ImGui::GetCurrentContext()->IO.MouseDown);
+                                const auto& norPos = (ImGui::GetMousePos() - org) / siz;
+                                CommonSystem::Instance()->SetMousePos(
+                                    ct::fvec2(norPos.x, norPos.y), m_PaneSize, ImGui::GetCurrentContext()->IO.MouseDown);
                             }
 
                             m_UpdateCamera(org, siz);
@@ -155,9 +157,9 @@ bool SceneViewPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPa
 ///////////////////////////////////////////////////////////////////////////////////
 
 bool SceneViewPane::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     UNUSED(vCurrentFrame);
-    UNUSED(vMaxSize);
+    UNUSED(vMaxRect);
     ImGui::SetCurrentContext(vContextPtr);
     UNUSED(vUserDatas);
     return false;

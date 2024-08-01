@@ -87,7 +87,7 @@ bool GridNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, 
     return false;
 }
 
-bool GridNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
+bool GridNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 

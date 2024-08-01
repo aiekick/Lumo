@@ -52,6 +52,7 @@ private:
 
     std::vector<std::shared_ptr<FileDialogAsset>> m_FileDialogAssets;
 
+    ct::ivec2 m_DisplayPos;
     ct::ivec2 m_DisplaySize;
 
     // mouse
@@ -84,8 +85,15 @@ public:  // getters
     BackendDatas& GetBackendDatasRef() {
         return m_BackendDatas;
     }
+    ImVec2 GetDisplayPos() {
+        return ImVec2((float)m_DisplayPos.x, (float)m_DisplayPos.y);
+    }
     ImVec2 GetDisplaySize() {
         return ImVec2((float)m_DisplaySize.x, (float)m_DisplaySize.y);
+    }
+    ImRect GetDisplayRect() {
+        const auto& p = GetDisplayPos();
+        return ImRect(p, p + GetDisplaySize());
     }
 
 public:
@@ -183,7 +191,7 @@ private:
     void m_MainLoop();
     bool m_BeginRender(bool& vNeedResize);
     void m_EndRender();
-    void m_PrepareImGui(ct::ivec4 vViewport);
+    void m_PrepareImGui(ImRect vViewport);
     void m_Update();
     void m_IncFrame();
     void m_Resize();

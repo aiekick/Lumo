@@ -19,6 +19,7 @@ limitations under the License.
 
 #include <LumoBackend/SceneGraph/SceneLight.h>
 #include <LumoBackend/Systems/CommonSystem.h>
+#include <ImGuiPack.h>
 
 SceneLightPtr SceneLight::Create() {
     auto res = std::make_shared<SceneLight>();
@@ -95,10 +96,10 @@ bool SceneLight::NeedUpdateCamera() {
 }
 
 void SceneLight::AdaptIconColor() {
-    gizmo_idle_color = ct::toImVec4(lightDatas.lightColor);
+    gizmo_idle_color = ImVec4(lightDatas.lightColor.x, lightDatas.lightColor.y, lightDatas.lightColor.z, lightDatas.lightColor.w);
     gizmo_idle_color.w = 1.0f;
-    gizmo_hovered_color = ct::toImVec4(lightDatas.lightColor * 1.5f);
+    gizmo_hovered_color = gizmo_idle_color * 1.5f;
     gizmo_hovered_color.w = 1.0f;
-    gizmo_pressed_color = ct::toImVec4(lightDatas.lightColor * 2.0f);
+    gizmo_pressed_color = gizmo_idle_color * 2.0f;
     gizmo_pressed_color.w = 1.0f;
 }

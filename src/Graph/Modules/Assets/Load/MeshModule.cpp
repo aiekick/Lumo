@@ -143,11 +143,11 @@ bool MeshModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect
 }
 
 bool MeshModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
-    ImVec2 max = ImVec2((float)vMaxSize.x, (float)vMaxSize.y);
+    ImVec2 max = vMaxRect.GetSize();
     ImVec2 min = max * 0.5f;
 
     if (ImGuiFileDialog::Instance()->Display(unique_OpenMeshFileDialog_id, ImGuiWindowFlags_NoCollapse, min, max)) {

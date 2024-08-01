@@ -67,14 +67,14 @@ void View2DPane::Unit() {
 //// IMGUI PANE ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-bool View2DPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, void* vUserDatas) {
+bool View2DPane::DrawPanes(const uint32_t& vCurrentFrame, bool* vOpened, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     bool change = false;
 
-    if (vInOutPaneShown & paneFlag) {
+    if (vOpened && *vOpened) {
         static ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_MenuBar;
-        if (ImGui::Begin<PaneFlags>(paneName.c_str(), &vInOutPaneShown, paneFlag, flags)) {
+        if (ImGui::Begin(GetName().c_str(), vOpened, flags)) {
 #ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
             auto win = ImGui::GetCurrentWindowRead();
             if (win->Viewport->Idx != 0)
@@ -96,7 +96,8 @@ bool View2DPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneS
                         ImGui::EndMenuBar();
                     }
 
-                    ct::ivec2 maxSize = ImGui::GetContentRegionAvail();
+                    const auto& av = ImGui::GetContentRegionAvail();
+                    ct::ivec2 maxSize(av.x, av.y);
 
                     if (m_ImGuiTexture.canDisplayPreview) {
                         m_PreviewRect = ct::GetScreenRectWithRatio<int32_t>(m_ImGuiTexture.ratio, maxSize, false);
@@ -112,8 +113,9 @@ bool View2DPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneS
                         if (ImGui::IsWindowHovered()) {
                             if (ImGui::IsMouseHoveringRect(org, org + siz)) {
                                 if (m_CanWeTuneMouse && CanUpdateMouse(true, 0)) {
-                                    ct::fvec2 norPos = (ImGui::GetMousePos() - org) / siz;
-                                    CommonSystem::Instance()->SetMousePos(norPos, outputSize, ImGui::GetCurrentContext()->IO.MouseDown);
+                                    const auto& norPos = (ImGui::GetMousePos() - org) / siz;
+                                    CommonSystem::Instance()->SetMousePos(
+                                        ct::fvec2(norPos.x, norPos.y), outputSize, ImGui::GetCurrentContext()->IO.MouseDown);
                                 }
                             }
                         }
@@ -133,7 +135,7 @@ bool View2DPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneS
 ///////////////////////////////////////////////////////////////////////////////////
 
 bool View2DPane::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     return false;

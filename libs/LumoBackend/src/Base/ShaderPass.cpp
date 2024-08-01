@@ -512,10 +512,10 @@ bool ShaderPass::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect
 }
 
 bool ShaderPass::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     UNUSED(vCurrentFrame);
-    UNUSED(vMaxSize);
+    UNUSED(vMaxRect);
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
     UNUSED(vUserDatas);

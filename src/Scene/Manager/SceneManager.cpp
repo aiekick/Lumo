@@ -87,11 +87,11 @@ bool SceneManager::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRe
     return SceneMerger::Instance()->DrawOverlays(vCurrentFrame, vRect, vContextPtr, vUserDatas);
 }
 
-bool SceneManager::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
+bool SceneManager::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
-    return SceneMerger::Instance()->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+    return SceneMerger::Instance()->DrawDialogsAndPopups(vCurrentFrame, vMaxRect, vContextPtr, vUserDatas);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

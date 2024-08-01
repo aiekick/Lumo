@@ -40,9 +40,9 @@ public:
     bool DrawOverlays(
         const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
     bool DrawPanes(
-        const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
+        const uint32_t& vCurrentFrame, bool* vOpened, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
     bool DrawDialogsAndPopups(
-        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
+        const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
 
     void DrawDebugInfos();
     void DrawProperties();
@@ -54,7 +54,7 @@ public:
     void ClearGraphPanes();
 
 private:
-    bool DrawGraph(BaseNodeWeak vNode, bool& vCanShow, bool vRootNode, size_t vInitialPanesCount, PaneFlags& vInOutPaneShown);
+    bool DrawGraph(BaseNodeWeak vNode, bool& vCanShow, bool vRootNode, size_t vInitialPanesCount, bool* vOpened);
 
 public:
     std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

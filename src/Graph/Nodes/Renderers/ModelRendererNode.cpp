@@ -139,13 +139,13 @@ bool ModelRendererNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect
 	return false;
 }
 
-bool ModelRendererNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas)
+bool ModelRendererNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas)
 {
 	ZoneScoped;
 	assert(vContextPtr); 
 	ImGui::SetCurrentContext(vContextPtr);
 	if (m_ModelRendererModulePtr)	{
-		return m_ModelRendererModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+		return m_ModelRendererModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxRect, vContextPtr, vUserDatas);
 	}
 	return false;
 }

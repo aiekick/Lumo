@@ -103,18 +103,18 @@ void GraphPane::DrawProperties() {
 //// IMGUI PANE ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-bool GraphPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneShown, ImGuiContext* vContextPtr, void* vUserDatas) {
+bool GraphPane::DrawPanes(const uint32_t& vCurrentFrame, bool* vOpened, ImGuiContext* vContextPtr, void* vUserDatas) {
     bool change = false;
 
-    if (vInOutPaneShown & paneFlag) {
+    if (vOpened && *vOpened) {
         // main graph
         bool opened = true;
-        change = DrawGraph(NodeManager::Instance()->m_RootNodePtr, opened, true, 0, vInOutPaneShown);
+        change = DrawGraph(NodeManager::Instance()->m_RootNodePtr, opened, true, 0, vOpened);
 
         // childs graph
         size_t countPanes = m_GraphPanes.size();
         for (auto nodeEntry : m_GraphPanes) {
-            change |= DrawGraph(nodeEntry.first, nodeEntry.second, false, countPanes, vInOutPaneShown);
+            change |= DrawGraph(nodeEntry.first, nodeEntry.second, false, countPanes, vOpened);
         }
     }
 
@@ -126,7 +126,7 @@ bool GraphPane::DrawPanes(const uint32_t& vCurrentFrame, PaneFlags& vInOutPaneSh
 }
 
 bool GraphPane::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     return false;
 }
 
@@ -162,7 +162,7 @@ void GraphPane::AddGraphPane(BaseNodeWeak vNodeGraphToShow) {
                 m_GraphPanes.emplace_back(vNodeGraphToShow, true);
                 nodePtr->InitGraph();
                 nodePtr->uniquePaneId = nodePtr->name + "##" + ct::toStr((int)nodePtr->GetNodeID());
-                LayoutManager::Instance()->AddSpecificPaneToExisting(nodePtr->uniquePaneId.c_str(), paneName);
+                LayoutManager::Instance()->AddSpecificPaneToExisting(nodePtr->uniquePaneId.c_str(), GetName());
             }
 
             LayoutManager::Instance()->FocusSpecificPane(nodePtr->uniquePaneId.c_str());
@@ -222,17 +222,17 @@ bool GraphPane::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vP
 //// PRIVATE //////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////
 
-bool GraphPane::DrawGraph(BaseNodeWeak vNode, bool& vCanShow, bool vRootNode, size_t vInitialPanesCount, PaneFlags& vInOutPaneShown) {
+bool GraphPane::DrawGraph(BaseNodeWeak vNode, bool& vCanShow, bool vRootNode, size_t vInitialPanesCount, bool* vOpened) {
     if (vCanShow) {
         if (!vNode.expired()) {
             auto nodeEntryPtr = vNode.lock();
             if (nodeEntryPtr) {
                 if (!nodeEntryPtr->uniquePaneId.empty() || vRootNode) {
-                    if (vInOutPaneShown & paneFlag) {
+                    if (vOpened && *vOpened) {
                         if (vRootNode) {
                             static ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus |
                                                             ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar;
-                            if (ImGui::Begin<PaneFlags>(paneName.c_str(), &vInOutPaneShown, paneFlag, flags)) {
+                            if (ImGui::Begin(GetName().c_str(), vOpened, flags)) {
 #ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
                                 auto win = ImGui::GetCurrentWindowRead();
                                 if (win->Viewport->Idx != 0)
@@ -308,7 +308,7 @@ bool GraphPane::DrawGraph(BaseNodeWeak vNode, bool& vCanShow, bool vRootNode, si
                         } else {
                             static ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus |
                                                             ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar;
-                            if (ImGui::Begin<PaneFlags>(paneName.c_str(), &vInOutPaneShown, paneFlag, flags)) {
+                            if (ImGui::Begin(GetName().c_str(), vOpened, flags)) {
                                 if (ImGui::Begin(nodeEntryPtr->uniquePaneId.c_str(), &vCanShow, flags)) {
 #ifdef USE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS
                                     auto win = ImGui::GetCurrentWindowRead();

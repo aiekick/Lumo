@@ -161,7 +161,7 @@ bool ModelRendererModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRe
 	return false;
 }
 
-bool ModelRendererModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas)
+bool ModelRendererModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas)
 {
 	ZoneScoped;
 
@@ -170,7 +170,7 @@ bool ModelRendererModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, co
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 		if (m_ModelRendererModule_Mesh_Pass_Ptr) {
-			return m_ModelRendererModule_Mesh_Pass_Ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+			return m_ModelRendererModule_Mesh_Pass_Ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxRect, vContextPtr, vUserDatas);
 		}
 	}
 

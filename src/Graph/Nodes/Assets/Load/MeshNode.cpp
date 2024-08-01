@@ -72,12 +72,12 @@ bool MeshNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, 
     return false;
 }
 
-bool MeshNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
+bool MeshNode::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
     if (m_MeshModule) {
-        return m_MeshModule->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+        return m_MeshModule->DrawDialogsAndPopups(vCurrentFrame, vMaxRect, vContextPtr, vUserDatas);
     }
     return false;
 }

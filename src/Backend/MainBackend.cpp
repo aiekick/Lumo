@@ -336,7 +336,8 @@ void MainBackend::m_MainLoop() {
 
         m_Update();  // to do absolutly beofre imgui rendering
 
-        m_PrepareImGui(ct::ivec4(0, m_VulkanWindowPtr->getWindowResolution()));
+        const auto& reso = m_VulkanWindowPtr->getWindowResolution();
+        m_PrepareImGui(ImRect(ImVec2(), ImVec2(reso.x, reso.y)));
 
         // Merged Rendering
         bool needResize = false;
@@ -405,7 +406,7 @@ void MainBackend::m_EndRender() {
     m_VulkanCorePtr->Present();
 }
 
-void MainBackend::m_PrepareImGui(ct::ivec4 vViewport) {
+void MainBackend::m_PrepareImGui(ImRect vViewport) {
     ZoneScoped;
 
     ImGui::SetPUSHID(125);
@@ -415,8 +416,7 @@ void MainBackend::m_PrepareImGui(ct::ivec4 vViewport) {
     FrameMark;
 
     m_ImGuiOverlayPtr->getFrontend()->Display(m_CurrentFrame);
-    NodeManager::Instance()->DrawDialogsAndPopups(
-        m_CurrentFrame, ImVec2((float)vViewport.size().x, (float)vViewport.size().y), ImGui::GetCurrentContext(), {});
+    NodeManager::Instance()->DrawDialogsAndPopups(m_CurrentFrame, vViewport, ImGui::GetCurrentContext(), {});
     m_ImGuiOverlayPtr->end();
 }
 
@@ -746,7 +746,7 @@ void MainBackend::m_InitPlugins() {
     for (auto& pluginPane : pluginPanes) {
         if (!pluginPane.paneWeak.expired()) {
             LayoutManager::Instance()->AddPane(pluginPane.paneWeak, pluginPane.paneName, pluginPane.paneCategory, pluginPane.paneDisposal,
-                pluginPane.isPaneOpenedDefault, pluginPane.isPaneFocusedDefault);
+                pluginPane.paneRatio, pluginPane.isPaneOpenedDefault, pluginPane.isPaneFocusedDefault);
             auto plugin_ptr = std::dynamic_pointer_cast<PluginPane>(pluginPane.paneWeak.lock());
             if (plugin_ptr != nullptr) {
                 plugin_ptr->SetProjectInstancePtr(ProjectFile::Instance());
@@ -772,7 +772,7 @@ void MainBackend::m_UnitSystems() {
 void MainBackend::m_InitPanes() {
     if (LayoutManager::Instance()->InitPanes()) {
         // a faire apres InitPanes() sinon ConsolePane::Instance()->paneFlag vaudra 0 et changeras apres InitPanes()
-        Messaging::Instance()->sMessagePaneId = ConsolePane::Instance()->paneFlag;
+        Messaging::Instance()->sMessagePaneId = ConsolePane::Instance()->GetFlag();
     }
 }
 

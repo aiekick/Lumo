@@ -58,7 +58,7 @@ public:
     bool DrawOverlays(
         const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
     bool DrawDialogsAndPopups(
-        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
+        const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
 
     // Interfaces Getters
     vk::DescriptorImageInfo* GetTextureCube(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr) override;
@@ -66,7 +66,7 @@ public:
     std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
     bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;
 
-    void DrawTextures(const ct::ivec2& vMaxSize, const float& vRounding = 0.0f);
+    void DrawTextures(const ct::ivec2& vMaxRect, const float& vRounding = 0.0f);
 
 private:
     void LoadTextures(const std::string& vFilePathName);
