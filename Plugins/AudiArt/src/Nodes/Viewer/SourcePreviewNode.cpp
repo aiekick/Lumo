@@ -128,14 +128,14 @@ bool SourcePreviewNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect
 }
 
 bool SourcePreviewNode::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
     if (m_SourcePreviewModulePtr) {
-        return m_SourcePreviewModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+        return m_SourcePreviewModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxRect, vContextPtr, vUserDatas);
     }
 
     return false;

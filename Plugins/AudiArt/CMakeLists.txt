@@ -32,9 +32,9 @@ add_definitions(-DUSE_DECORATIONS_FOR_RESIZE_CHILD_WINDOWS) ## for the resize im
 include(cmake/miniaudio.cmake)
 include(cmake/kissfft.cmake)
 
-set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
-
-find_package(Vulkan REQUIRED)
+if (uninstall)
+	set_target_properties(uninstall PROPERTIES FOLDER "cmakeTargets")
+endif()
 
 ## other define
 add_definitions(-DPROJECT_PATH="${CMAKE_SOURCE_DIR}")
@@ -54,6 +54,7 @@ add_definitions(-DUSE_IMCOOL_BAR)
 add_definitions(-DUSE_IMGUI_MARKDOW)
 add_definitions(-DUSE_IMGUI_FILE_DIALOG)
 add_definitions(-DUSE_IMGUI_NODE_EDITOR)
+add_definitions(-DUSE_IMGUI_COLOR_TEXT_EDIT)
 
 if(UNIX)
     add_definitions(-DUNIX)
@@ -62,7 +63,7 @@ elseif(WIN32)
 endif()
 
 if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /FR")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 ")
     add_definitions(-D_USE_MATH_DEFINES)
     add_definitions(-DMSVC)
 	add_definitions(-DNOMINMAX) ## for avoid issue regarding std::max and std::min
@@ -77,21 +78,32 @@ file(GLOB_RECURSE PROJECT_SRC_RECURSE
 	${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src PREFIX src FILES ${PROJECT_SRC_RECURSE})
 
+file(GLOB SHADER_SOURCES 
+		${CMAKE_CURRENT_SOURCE_DIR}/shaders/*.vert
+		${CMAKE_CURRENT_SOURCE_DIR}/shaders/*.frag
+		${CMAKE_CURRENT_SOURCE_DIR}/shaders/*.geom
+		${CMAKE_CURRENT_SOURCE_DIR}/shaders/*.tesseval
+		${CMAKE_CURRENT_SOURCE_DIR}/shaders/*.tessctrl
+		${CMAKE_CURRENT_SOURCE_DIR}/shaders/*.comp)
+source_group(Shaders FILES ${SHADER_SOURCES})
+
+file(GLOB_RECURSE PROJECT_SHADERS_RECURSE 
+	${CMAKE_CURRENT_SOURCE_DIR}/builtins/*.glsl 
+	${CMAKE_CURRENT_SOURCE_DIR}/builtins/*.scen 
+	${CMAKE_CURRENT_SOURCE_DIR}/builtins/*.comp)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX Shaders FILES ${PROJECT_SHADERS_RECURSE})
+
 file(GLOB_RECURSE CMAKE_RECURSE 
 	${CMAKE_CURRENT_SOURCE_DIR}/cmake/*.cmake)
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/cmake PREFIX cmake FILES ${CMAKE_RECURSE})
 
 set(ENABLE_EXPORTS ON CACHE STRING "" FORCE)
 
-set(LINKING_TYPE MODULE)
-if (PLUGIN_ENABLE_STATIC_LINKING)
-	set(LINKING_TYPE STATIC)
-	add_definitions(-DPLUGIN_ENABLE_STATIC_LINKING)
-endif()
-
-add_library(${PROJECT} ${LINKING_TYPE}
+add_library(${PROJECT} MODULE
 	${CMAKE_RECURSE}
+	${SHADER_SOURCES}
 	${PROJECT_SRC_RECURSE}
+	${PROJECT_SHADERS_RECURSE}
 )
 
 if ("${CMAKE_EXE_LINKER_FLAGS}" STREQUAL "/machine:x64")
@@ -121,7 +133,7 @@ set_target_properties(${PROJECT} PROPERTIES	LIBRARY_OUTPUT_DIRECTORY "${FINAL_BI
 set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES FOLDER Plugins)
-
+			
 install(IMPORTED_RUNTIME_ARTIFACTS ${PROJECT} DESTINATION plugins COMPONENT PLUGIN_BINARY_${PROJECT})
 
 include_directories(
@@ -149,7 +161,7 @@ set(LOADED_LUMO_PLUGINS ${LOADED_LUMO_PLUGINS} ${PROJECT} PARENT_SCOPE)
 ## only for Debug
 add_custom_command(
 	TARGET ${PROJECT} PRE_BUILD
-	COMMAND BuildInc -prefix=${PROJECT} 1000:10 $<$<CONFIG:Debug>:${CMAKE_CURRENT_SOURCE_DIR}/src/Headers/${PROJECT}Build.h>
+	COMMAND BuildInc -prefix=${PROJECT} 1000000:10 $<$<CONFIG:Debug>:${CMAKE_CURRENT_SOURCE_DIR}/src/Headers/${PROJECT}Build.h>
 	DEPENDS ${PROJECT}
 )
 
