@@ -160,7 +160,7 @@ bool ShapeModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRec
 	return false;
 }
 
-bool ShapeModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas)
+bool ShapeModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas)
 {
 	ZoneScoped;
 
@@ -169,7 +169,7 @@ bool ShapeModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVe
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 		if (m_ShapeModule_Comp_3D_Pass_Ptr) {
-			return m_ShapeModule_Comp_3D_Pass_Ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+            return m_ShapeModule_Comp_3D_Pass_Ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxRect, vContextPtr, vUserDatas);
 		}
 	}
 

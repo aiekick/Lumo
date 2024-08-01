@@ -126,14 +126,14 @@ bool LongLatPeviewNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect
 }
 
 bool LongLatPeviewNode::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
     if (m_LongLatPeviewModulePtr) {
-        return m_LongLatPeviewModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+        return m_LongLatPeviewModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxRect, vContextPtr, vUserDatas);
     }
     return false;
 }

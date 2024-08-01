@@ -105,7 +105,7 @@ bool ShapeModule_Comp_3D_Pass::DrawOverlays(const uint32_t& vCurrentFrame, const
 	return false;
 }
 
-bool ShapeModule_Comp_3D_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
+bool ShapeModule_Comp_3D_Pass::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas) {
 	ZoneScoped;
 	assert(vContextPtr); 
 	ImGui::SetCurrentContext(vContextPtr);

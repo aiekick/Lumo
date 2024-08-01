@@ -125,14 +125,14 @@ bool VignetteNode::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRe
 }
 
 bool VignetteNode::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
 
     if (m_VignetteModulePtr) {
-        return m_VignetteModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+        return m_VignetteModulePtr->DrawDialogsAndPopups(vCurrentFrame, vMaxRect, vContextPtr, vUserDatas);
     }
     return false;
 }

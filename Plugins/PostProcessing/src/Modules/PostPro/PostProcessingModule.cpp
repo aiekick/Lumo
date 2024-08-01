@@ -286,7 +286,7 @@ bool PostProcessingModule::DrawOverlays(
 }
 
 bool PostProcessingModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
@@ -295,7 +295,7 @@ bool PostProcessingModule::DrawDialogsAndPopups(
         for (auto pass : m_ShaderPasses) {
             auto ptr = pass.lock();
             if (ptr) {
-                change |= ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+                change |= ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxRect, vContextPtr, vUserDatas);
             }
         }
         return change;

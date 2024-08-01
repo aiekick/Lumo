@@ -160,7 +160,7 @@ bool VolumeRenderingModule::DrawOverlays(const uint32_t& vCurrentFrame, const Im
 	return false;
 }
 
-bool VolumeRenderingModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas)
+bool VolumeRenderingModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas)
 {
 	ZoneScoped;
 
@@ -169,7 +169,7 @@ bool VolumeRenderingModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, 
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 		if (m_VolumeRenderingModule_Comp_2D_Pass_Ptr) {
-			return m_VolumeRenderingModule_Comp_2D_Pass_Ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+            return m_VolumeRenderingModule_Comp_2D_Pass_Ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxRect, vContextPtr, vUserDatas);
 		}
 	}
 

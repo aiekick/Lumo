@@ -148,14 +148,14 @@ bool SSReflectionModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRec
 }
 
 bool SSReflectionModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
     if (m_LastExecutedFrame == vCurrentFrame) {
         if (m_SSReflectionModule_Comp_2D_Pass_Ptr) {
-            return m_SSReflectionModule_Comp_2D_Pass_Ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+            return m_SSReflectionModule_Comp_2D_Pass_Ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxRect, vContextPtr, vUserDatas);
         }
     }
 

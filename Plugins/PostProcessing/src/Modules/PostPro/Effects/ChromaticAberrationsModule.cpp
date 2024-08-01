@@ -149,14 +149,14 @@ bool ChromaticAberrationsModule::DrawOverlays(
 }
 
 bool ChromaticAberrationsModule::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);
     if (m_LastExecutedFrame == vCurrentFrame) {
         if (m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr) {
-            return m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+            return m_ChromaticAberrationsModule_Comp_2D_Pass_Ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxRect, vContextPtr, vUserDatas);
         }
     }
 

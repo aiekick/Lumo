@@ -161,7 +161,7 @@ bool HeatMapModule::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vR
 	return false;
 }
 
-bool HeatMapModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas)
+bool HeatMapModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas)
 {
 	ZoneScoped;
 
@@ -170,7 +170,7 @@ bool HeatMapModule::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const Im
 	if (m_LastExecutedFrame == vCurrentFrame)
 	{
 		if (m_HeatMapModule_Comp_2D_Pass_Ptr) {
-			return m_HeatMapModule_Comp_2D_Pass_Ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+			return m_HeatMapModule_Comp_2D_Pass_Ptr->DrawDialogsAndPopups(vCurrentFrame, vMaxRect, vContextPtr, vUserDatas);
 		}
 	}
 

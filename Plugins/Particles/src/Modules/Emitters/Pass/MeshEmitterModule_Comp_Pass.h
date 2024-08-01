@@ -92,7 +92,7 @@ public:
     bool DrawOverlays(
         const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
     bool DrawDialogsAndPopups(
-        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
+        const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
     void SetModel(SceneModelWeak vSceneModel = SceneModelWeak()) override;
     SceneParticlesWeak GetParticles() override;
     std::string getXml(const std::string& vOffset, const std::string& vUserDatas) override;

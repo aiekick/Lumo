@@ -114,7 +114,7 @@ BaseNodePtr CodeGenerator::CreatePluginNode(const std::string& vPluginNodeName) 
 
 std::vector<PluginPaneConfig> CodeGenerator::GetPanes() const {
     std::vector<PluginPaneConfig> res;
-    res.push_back(PluginPaneConfig(CodeGeneratorPane::Instance(), "Code Generator", "CodeGenerator", PaneDisposal::CENTRAL, false, false));
+    res.push_back(PluginPaneConfig(CodeGeneratorPane::Instance(), "Code Generator", "CodeGenerator", "CENTRAL", 0.0f, false, false));
     return res;
 }
 

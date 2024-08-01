@@ -448,7 +448,7 @@ ImVec2 BaseNode::GetMousePos() const {
 ImVec2 BaseNode::GetCanvasOffset() const {
     if (m_BaseNodeState.m_NodeGraphContext) {
         ax::NodeEditor::SetCurrentEditor(m_BaseNodeState.m_NodeGraphContext);
-        ax::NodeEditor::GetCanvasOffset();
+        return ax::NodeEditor::GetCanvasOffset();
     }
 
     return ImVec2(0, 0);
@@ -457,7 +457,7 @@ ImVec2 BaseNode::GetCanvasOffset() const {
 float BaseNode::GetCanvasScale() const {
     if (m_BaseNodeState.m_NodeGraphContext) {
         ax::NodeEditor::SetCurrentEditor(m_BaseNodeState.m_NodeGraphContext);
-        ax::NodeEditor::GetCanvasScale();
+        return ax::NodeEditor::GetCanvasScale();
     }
 
     return 1.0f;

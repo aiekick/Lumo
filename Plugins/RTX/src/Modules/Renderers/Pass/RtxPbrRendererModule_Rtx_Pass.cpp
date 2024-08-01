@@ -113,7 +113,7 @@ bool RtxPbrRendererModule_Rtx_Pass::DrawOverlays(
 }
 
 bool RtxPbrRendererModule_Rtx_Pass::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
 
     assert(vContextPtr);

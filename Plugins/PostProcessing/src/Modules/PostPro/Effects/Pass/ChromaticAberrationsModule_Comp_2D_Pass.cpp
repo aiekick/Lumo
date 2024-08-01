@@ -108,7 +108,7 @@ bool ChromaticAberrationsModule_Comp_2D_Pass::DrawOverlays(
 }
 
 bool ChromaticAberrationsModule_Comp_2D_Pass::DrawDialogsAndPopups(
-    const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) {
+    const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas) {
     ZoneScoped;
     assert(vContextPtr);
     ImGui::SetCurrentContext(vContextPtr);

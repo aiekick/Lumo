@@ -329,7 +329,7 @@ bool NODE_CLASS_NAME::DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& 
 	return false;
 }
 
-bool NODE_CLASS_NAME::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas)
+bool NODE_CLASS_NAME::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas)
 {
 	ZoneScoped;
 	assert(vContextPtr); 
@@ -338,7 +338,7 @@ bool NODE_CLASS_NAME::DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const 
         cpp_node_file_code +=
             u8R"(
 	if (m_MODULE_CLASS_NAMEPtr)	{
-		return m_MODULE_CLASS_NAMEPtr->DrawDialogsAndPopups(vCurrentFrame, vMaxSize, vContextPtr, vUserDatas);
+		return m_MODULE_CLASS_NAMEPtr->DrawDialogsAndPopups(vCurrentFrame, vMaxRect, vContextPtr, vUserDatas);
 	})";
     }
 
@@ -606,7 +606,7 @@ public:
 	// Draw Widgets
 	bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
 	bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
-	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
+	bool DrawDialogsAndPopups(const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
 	void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;)";
     if (m_GenerateAPass && m_RendererType != RENDERER_TYPE_NONE) {
         h_node_file_code +=
@@ -5965,7 +5965,8 @@ std::string GeneratorNode::getXml(const std::string& vOffset, const std::string&
         res += vOffset + "<graph>\n";
 
         res += vOffset + "\t<canvas>\n";
-        res += vOffset + "\t\t<offset>" + ct::fvec2(GetCanvasOffset()).string() + "</offset>\n";
+        const auto& co = GetCanvasOffset();
+        res += vOffset + "\t\t<offset>" + ct::fvec2(co.x, co.y).string() + "</offset>\n";
         res += vOffset + "\t\t<scale>" + ct::toStr(GetCanvasScale()) + "</scale>\n";
         res += vOffset + "\t</canvas>\n";
 
@@ -6092,10 +6093,12 @@ bool GeneratorNode::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement
         strParentName = vParent->Value();
 
     if (strParentName == "canvas") {
-        if (strName == "offset")
-            SetCanvasOffset(ct::toImVec2(ct::fvariant(strValue).GetV2()));
-        else if (strName == "scale")
+        if (strName == "offset") {
+            const auto& fv2 = ct::fvariant(strValue).GetV2();
+            SetCanvasOffset(ImVec2(fv2.x, fv2.y));
+        } else if (strName == "scale") {
             SetCanvasScale(ct::fvariant(strValue).GetF());
+        }
 
         return false;
     } else if (strParentName == "nodes") {

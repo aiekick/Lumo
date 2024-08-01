@@ -67,6 +67,8 @@ struct TorusParams {
     float m_MinorRadius = 0.25f;
     float m_ExteriorRadius = 1.25f;
     float m_InteriorRadius = 0.75f;
+    TorusParams() : m_Mode(0, std::vector<std::string>{"Major/Minor", "Exterior/Interior"}) {
+    }
 };
 
 class PrimitiveModule : public NodeInterface, public conf::ConfigAbstract, public ModelOutputInterface, public GuiInterface {
@@ -136,7 +138,7 @@ public:
     bool DrawWidgets(const uint32_t& vCurrentFrame, ImGuiContext* vContextPtr, void* vUserDatas) override;
     bool DrawOverlays(const uint32_t& vCurrentFrame, const ImRect& vRect, ImGuiContext* vContextPtr, void* vUserDatas) override;
     bool DrawDialogsAndPopups(
-        const uint32_t& vCurrentFrame, const ImVec2& vMaxSize, ImGuiContext* vContextPtr, void* vUserDatas) override;
+        const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr, void* vUserDatas) override;
 
     // Interfaces Getters
     SceneModelWeak GetModel() override;
