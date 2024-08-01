@@ -62,13 +62,12 @@ struct TorusParams {
     int32_t m_MinorSegments = 12;
     float m_SectionAngle = 0;
     int32_t m_SectionTwist = 0;
-    ImWidgets::QuickStringCombo m_Mode = {0, std::vector<std::string>{"Major/Minor", "Exterior/Interior"}};
+    ImWidgets::QuickStringCombo m_Mode;
     float m_MajorRadius = 1.0f;
     float m_MinorRadius = 0.25f;
     float m_ExteriorRadius = 1.25f;
     float m_InteriorRadius = 0.75f;
-    TorusParams() : m_Mode(0, std::vector<std::string>{"Major/Minor", "Exterior/Interior"}) {
-    }
+    TorusParams() : m_Mode(0, std::vector<std::string>{"Major/Minor", "Exterior/Interior"}) {}
 };
 
 class PrimitiveModule : public NodeInterface, public conf::ConfigAbstract, public ModelOutputInterface, public GuiInterface {

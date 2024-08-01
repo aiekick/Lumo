@@ -176,7 +176,7 @@ std::string PrimitiveModule::getXml(const std::string& vOffset, const std::strin
     str += vOffset + "\t<torus_minor_radius>" + ct::toStr(m_TorusParams.m_MinorRadius) + "</torus_minor_radius>\n";
     str += vOffset + "\t<torus_exterior_radius>" + ct::toStr(m_TorusParams.m_ExteriorRadius) + "</torus_exterior_radius>\n";
     str += vOffset + "\t<torus_interior_radius>" + ct::toStr(m_TorusParams.m_InteriorRadius) + "</torus_interior_radius>\n";
-    str += vOffset + "\t<torus_mode>" + ct::toStr(m_TorusParams.m_Mode.index) + "</torus_mode>\n";
+    str += vOffset + "\t<torus_mode>" + ct::toStr(m_TorusParams.m_Mode.getIndex()) + "</torus_mode>\n";
 
     str += vOffset + "</primitive_module>\n";
 
@@ -231,7 +231,7 @@ bool PrimitiveModule::setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLEleme
         else if (strName == "torus_interior_radius")
             m_TorusParams.m_InteriorRadius = ct::fvariant(strValue).GetF();
         else if (strName == "torus_mode")
-            m_TorusParams.m_Mode.index = ct::fvariant(strValue).GetI();
+            m_TorusParams.m_Mode.getIndexRef() = ct::fvariant(strValue).GetI();
     }
 
     return true;
@@ -275,8 +275,8 @@ bool PrimitiveModule::prDrawWidgets() {
                 change |= ImGui::SliderIntDefaultCompact(0.0f, "Minor Segments", &m_TorusParams.m_MinorSegments, 2U, 256U, 12U);
                 change |= ImGui::SliderFloatDefaultCompact(0.0f, "Section Angle (deg)", &m_TorusParams.m_SectionAngle, 0.0f, 360.0f, 0.0f);
                 change |= ImGui::SliderIntDefaultCompact(0.0f, "Section Twist", &m_TorusParams.m_SectionTwist, 0, 256, 0);
-                change |= m_TorusParams.m_Mode.DisplayCombo(0.0f, "Mode");
-                if (m_TorusParams.m_Mode.index == 0) {
+                change |= m_TorusParams.m_Mode.displayCombo(0.0f, "Mode");
+                if (m_TorusParams.m_Mode.getIndex() == 0) {
                     change |= ImGui::SliderFloatDefaultCompact(0.0f, "Major Radius", &m_TorusParams.m_MajorRadius, 0.0f, 50.0f, 1.0f);
                     change |= ImGui::SliderFloatDefaultCompact(0.0f, "Minor Radius", &m_TorusParams.m_MinorRadius, 0.0f, 50.0f, 0.25f);
                 } else {
@@ -547,10 +547,10 @@ void PrimitiveModule::CreateUVSphere() {
 }
 
 void PrimitiveModule::CreateTorus() {
-    if (m_TorusParams.m_Mode.index == TORUS_MODE_MAJOR_MINOR) {
+    if (m_TorusParams.m_Mode.getIndex() == TORUS_MODE_MAJOR_MINOR) {
         m_TorusParams.m_ExteriorRadius = m_TorusParams.m_MajorRadius + m_TorusParams.m_MinorRadius;
         m_TorusParams.m_InteriorRadius = m_TorusParams.m_MajorRadius - m_TorusParams.m_MinorRadius;
-    } else if (m_TorusParams.m_Mode.index == TORUS_MODE_EXT_INT) {
+    } else if (m_TorusParams.m_Mode.getIndex() == TORUS_MODE_EXT_INT) {
         m_TorusParams.m_MinorRadius = (m_TorusParams.m_ExteriorRadius - m_TorusParams.m_InteriorRadius) * 0.5f;
         m_TorusParams.m_MajorRadius = m_TorusParams.m_InteriorRadius + m_TorusParams.m_MinorRadius;
     }
