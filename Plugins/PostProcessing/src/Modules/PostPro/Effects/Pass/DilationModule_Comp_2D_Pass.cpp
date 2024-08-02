@@ -224,12 +224,12 @@ bool DilationModule_Comp_2D_Pass::UpdateBufferInfoInRessourceDescriptor() {
 
 std::string DilationModule_Comp_2D_Pass::GetComputeShaderCode(std::string& vOutShaderName) {
     vOutShaderName = "DilationModule_Comp_2D_Pass_Compute";
-    SetLocalGroupSize(ct::uvec3(8U, 8U, 1U));
+    SetLocalGroupSize(ct::uvec3(1U, 1U, 1U));
     return u8R"(
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-layout (local_size_x = 8, local_size_y = 8, local_size_z = 1 ) in;
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1 ) in;
 
 layout(std140, binding = 0) uniform UBO_Comp {
 	int u_shape; // 0 : bokeh, 1 : circle, 2 : quad | default is 0

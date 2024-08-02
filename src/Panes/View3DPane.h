@@ -49,6 +49,14 @@ private:
     // for send the resize event to nodes
     ct::ivec2 m_PaneSize;
 
+    // when in resizing 
+    bool m_IsResizing = false;
+    // when rersize just happen
+    bool m_isJustResized = false;
+    // resizing size
+    ct::ivec2 m_ResizingSize;
+
+
 public:
     bool Init() override;
     void Unit() override;

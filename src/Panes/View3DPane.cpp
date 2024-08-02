@@ -106,6 +106,23 @@ bool View3DPane::DrawPanes(const uint32_t& vCurrentFrame, bool* vOpened, ImGuiCo
                     const auto& av = ImGui::GetContentRegionAvail();
                     ct::ivec2 contentSize(av.x, av.y);
 
+                    // on test ca car si le vue n'est pas visible cad si contentSize.y est inferieur a 0 alors
+                    // on a affaire a un resize constant, car outputsize n'est jamais maj, tant que la vue n'a pas rendu
+                    // et ca casse le fps de l'ui, rendu son utilisation impossible ( deltatime superieur 32ms d'apres tracy sur un gtx 1050 Ti)
+                    if (m_ResizingSize.x != contentSize.x || m_ResizingSize.y != contentSize.y) {
+                        if (contentSize.x > 0 && contentSize.y > 0) {
+                            m_IsResizing = true;
+                            m_ResizingSize = contentSize;
+                        }
+                    } else {
+                        if (m_IsResizing) {
+                            if (!ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
+                                m_IsResizing = false;
+                                m_isJustResized = true;
+                            }
+                        }
+                    }
+
                     if (m_ImGuiTexture.canDisplayPreview) {
                         m_PreviewRect = ct::GetScreenRectWithRatio<int32_t>(m_ImGuiTexture.ratio, contentSize, false);
 
@@ -117,32 +134,33 @@ bool View3DPane::DrawPanes(const uint32_t& vCurrentFrame, bool* vOpened, ImGuiCo
                         ImVec2 org = ImGui::GetCursorScreenPos() + pos;
                         ImGui::ImageRect((ImTextureID)&m_ImGuiTexture.descriptor, pos, siz);
 
-                        ImGuiContext& g = *GImGui;
-                        change |= NodeManager::Instance()->DrawOverlays(vCurrentFrame, g.LastItemData.Rect, ImGui::GetCurrentContext(), vUserDatas);
+                        if (!m_IsResizing) {
+                            ImGuiContext& g = *GImGui;
+                            change |= NodeManager::Instance()->DrawOverlays(  //
+                                vCurrentFrame, g.LastItemData.Rect, ImGui::GetCurrentContext(), vUserDatas);
 
-                        if (ImGui::IsWindowHovered()) {
-                            if (ImGui::IsMouseHoveringRect(org, org + siz)) {
-                                if (m_CanWeTuneMouse && m_CanUpdateMouse(true, 0)) {
-                                    const auto& norPos = (ImGui::GetMousePos() - org) / siz;
-                                    CommonSystem::Instance()->SetMousePos(
-                                        ct::fvec2(norPos.x, norPos.y), m_PaneSize, ImGui::GetCurrentContext()->IO.MouseDown);
+                            if (ImGui::IsWindowHovered()) {
+                                if (ImGui::IsMouseHoveringRect(org, org + siz)) {
+                                    if (m_CanWeTuneMouse && m_CanUpdateMouse(true, 0)) {
+                                        const auto& norPos = (ImGui::GetMousePos() - org) / siz;
+                                        CommonSystem::Instance()->SetMousePos(
+                                            ct::fvec2(norPos.x, norPos.y), m_PaneSize, ImGui::GetCurrentContext()->IO.MouseDown);
+                                    }
+
+                                    m_UpdateCamera(org, siz);
                                 }
-
-                                m_UpdateCamera(org, siz);
                             }
-                        }
 
-                        if (CommonSystem::Instance()->UpdateIfNeeded(ct::uvec2((uint32_t)siz.x, (uint32_t)siz.y))) {
-                            CommonSystem::Instance()->SetScreenSize(ct::uvec2((uint32_t)siz.x, (uint32_t)siz.y));
-                            change = true;
+                            if (CommonSystem::Instance()->UpdateIfNeeded(ct::uvec2((uint32_t)siz.x, (uint32_t)siz.y))) {
+                                CommonSystem::Instance()->SetScreenSize(ct::uvec2((uint32_t)siz.x, (uint32_t)siz.y));
+                                change = true;
+                            }
                         }
                     }
 
-                    // on test ca car si le vue n'est pas visible cad si contentSize.y est inferieur a 0 alors
-                    // on a affaire a un resize constant, car outputsize n'est jamais maj, tant que la vue n'a pas rendu
-                    // et ca casse le fps de l'ui, rendu son utilisation impossible ( deltatime superieur 32ms d'apres tracy sur un gtx 1050 Ti)
-                    if (contentSize.x > 0 && contentSize.y > 0) {
-                        if (m_PaneSize.x != contentSize.x || m_PaneSize.y != contentSize.y) {
+                    if (m_isJustResized) {
+                        m_isJustResized = false;
+                        if (contentSize.x > 0 && contentSize.y > 0) {
                             auto parentNodePtr = slotPtr->parentNode.lock();
                             if (parentNodePtr) {
                                 parentNodePtr->NeedResizeByResizeEvent(&contentSize, nullptr);
@@ -150,7 +168,6 @@ bool View3DPane::DrawPanes(const uint32_t& vCurrentFrame, bool* vOpened, ImGuiCo
                                 CommonSystem::Instance()->NeedCamChange();
                                 change = true;
                             }
-
                             m_PaneSize = contentSize;
                         }
                     }

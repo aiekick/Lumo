@@ -43,7 +43,6 @@ add_definitions(-DCUSTOM_LUMO_BACKEND_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/C
 add_definitions(-DCUSTOM_IMWIDGETS_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/CustomImWidgetsConfig.h")
 add_definitions(-DUSE_IMGUI="${CMAKE_SOURCE_DIR}/libs/Gaia/3rdparty/ImGuiPack/3rdparty/imgui/imgui.h") # for use ImGuiPack
 add_definitions(-DCUSTOM_IMGUIFILEDIALOG_CONFIG="${CMAKE_SOURCE_DIR}/src/Frontend/CustomImGuiFileDialogConfig.h")
-add_definitions(-DPROJECT_NAME="${PROJECT}")
 add_definitions(-DUSE_STD_FILESYSTEM)
 add_definitions(-DUSE_VULKAN)
 
@@ -115,6 +114,7 @@ target_compile_definitions(${PROJECT} PRIVATE BUILD_GAIA_SHARED_LIBS)
 target_compile_definitions(${PROJECT} PRIVATE BUILD_CTOOLS_SHARED_LIBS)	
 target_compile_definitions(${PROJECT} PRIVATE BUILD_IMGUI_PACK_SHARED_LIBS)
 target_compile_definitions(${PROJECT} PRIVATE BUILD_LUMO_BACKEND_SHARED_LIBS)
+target_compile_definitions(${PROJECT} PRIVATE PROJECT_NAME="${PROJECT}")
 
 if(USE_DEBUG_SANITIZER)
 	target_compile_options(${PROJECT} PRIVATE $<$<CONFIG:Debug>:-fsanitize=address -static-libasan>)
