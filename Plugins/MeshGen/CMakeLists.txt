@@ -124,6 +124,10 @@ if(USE_DEBUG_SANITIZER)
 	message("Address Sanitizer enabled for projet ${PROJECT}")
 endif()
 
+if(UNIX)
+    set_target_properties(${PROJECT} PROPERTIES PREFIX "") # supress lib prefix 
+endif()
+
 set(FINAL_BIN_DIR ${CMAKE_SOURCE_DIR}/bin/plugins)
 message("Plugin ${PROJECT} => ${FINAL_BIN_DIR}")
 set(CMAKE_PDB_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}/debug")
@@ -132,10 +136,6 @@ set_target_properties(${PROJECT} PROPERTIES	LIBRARY_OUTPUT_DIRECTORY "${FINAL_BI
 set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES FOLDER Plugins)
-
-if(UNIX)
-    set_target_properties(${PROJECT} PROPERTIES PREFIX "")
-endif()
 
 install(IMPORTED_RUNTIME_ARTIFACTS ${PROJECT} DESTINATION plugins COMPONENT PLUGIN_BINARY_${PROJECT})
 
