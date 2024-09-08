@@ -133,6 +133,10 @@ set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG "${FI
 set_target_properties(${PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE "${FINAL_BIN_DIR}")
 set_target_properties(${PROJECT} PROPERTIES FOLDER Plugins)
 
+if(UNIX)
+    set_target_properties(${PROJECT} PROPERTIES PREFIX "")
+endif()
+
 install(IMPORTED_RUNTIME_ARTIFACTS ${PROJECT} DESTINATION plugins COMPONENT PLUGIN_BINARY_${PROJECT})
 
 include_directories(
