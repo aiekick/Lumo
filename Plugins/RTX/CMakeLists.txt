@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.1)
 
-set(PROJECT RTX)
+set(PROJECT Rtx)
 
 enable_language(C CXX)
 
 project(${PROJECT} CXX)
 
-option(PLUGIN_ENABLE_RTX "Enable the plugin RTX" OFF)
+option(PLUGIN_ENABLE_RTX "Enable the plugin Rtx" OFF)
 
 if (PLUGIN_ENABLE_RTX)
 

@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.1)
 
-set(PROJECT AudiArt)
+set(PROJECT Audiart)
 
 enable_language(C CXX)
 
 project(${PROJECT} CXX)
 
-option(PLUGIN_ENABLE_AUDIART "Enable the plugin AudiArt" OFF)
+option(PLUGIN_ENABLE_AUDIART "Enable the plugin Audiart" OFF)
 
 if (PLUGIN_ENABLE_AUDIART)
 
