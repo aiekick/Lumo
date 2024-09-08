@@ -39,6 +39,12 @@ set(CMAKE_PDB_OUTPUT_DIRECTORY "${FINAL_BIN_DIR}/debug")
 set(CMAKE_INSTALL_PREFIX .)
 set(CMAKE_INSTALL_BINDIR .)
 
+if(MSVC)
+	set(CMAKE_GENERATOR_PLATFROM=x64)
+else ()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
+endif ()
+
 set(USE_SHARED_LIBS ON CACHE BOOL "" FORCE)
 
 if (USE_CODE_GENERATOR)
@@ -96,11 +102,7 @@ set(LLVM_USE_CRT_RELEASE MD CACHE STRING "" FORCE)
 set(LLVM_USE_CRT_RELWITHDEBINFO MD CACHE STRING "" FORCE)
 set(USE_MSVC_RUNTIME_LIBRARY_DLL ON CACHE BOOL "")
 
-if ("${CMAKE_EXE_LINKER_FLAGS}" STREQUAL "/machine:x64")
-	set(ARCH x64)
-else()
-	set(ARCH x32)
-endif()
+set(ARCH x64)
 
 include(cmake/3rdparty.cmake)
 include(cmake/libs.cmake)
@@ -143,12 +145,13 @@ endif()
 
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4 /FR /std:c++17")
+	set(CMAKE_GENERATOR_PLATFROM=x64)
     add_definitions(-D_USE_MATH_DEFINES)
     add_definitions(-DMSVC)
     add_definitions(-DGLFW_EXPOSE_NATIVE_WIN32)
 	add_definitions(-DNOMINMAX) ## for avoid issue regarding std::max and std::min
 else ()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -std=c++17 -Wunused-parameter -Wno-unknown-pragmas")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64 -Wall -Wextra -Wpedantic -std=c++17 -Wunused-parameter -Wno-unknown-pragmas")
 endif ()
 
 if(NOT CMAKE_DEBUG_POSTFIX)
