@@ -11,4 +11,4 @@ withCredentials([string(credentialsId: 'PIPELINES_REPO', variable: 'checkout_url
     )
 }
 
-pipeline_github_lumo_linux()
+pipeline_github_lumo("LINUX")
