@@ -121,7 +121,7 @@ add_definitions(-DPLUGIN_PREFIX="${PLUGIN_PREFIX}")
 ###########################################################
 
 set(LOADED_LUMO_PLUGINS) ### musty be fillerd by each pluigns in CMakeLists.txt with plugin name
-set(PLUGINS_DIRECTORY ${CMAKE_SOURCE_DIR}/Plugins)
+set(PLUGINS_DIRECTORY ${CMAKE_SOURCE_DIR}/plugins)
 file(GLOB SUBDIRS RELATIVE ${PLUGINS_DIRECTORY} ${PLUGINS_DIRECTORY}/*)
 FOREACH(SUBDIR ${SUBDIRS})
 	if(IS_DIRECTORY ${PLUGINS_DIRECTORY}/${SUBDIR})

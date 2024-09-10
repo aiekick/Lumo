@@ -16,15 +16,15 @@ limitations under the License.
 
 #pragma once
 
-#include <SceneGraph/SceneAudiArt.h>
+#include <SceneGraph/SceneAudiart.h>
 
 #include <map>
 #include <string>
 
-class SceneAudiArtInputInterface {
+class SceneAudiartInputInterface {
 protected:
-    std::map<std::string, SceneAudiArtWeak> m_SceneAudiArts;
+    std::map<std::string, SceneAudiartWeak> m_SceneAudiarts;
 
 public:
-    virtual void SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) = 0;
+    virtual void SetSceneAudiart(const std::string& vName, SceneAudiartWeak vSceneAudiart) = 0;
 };

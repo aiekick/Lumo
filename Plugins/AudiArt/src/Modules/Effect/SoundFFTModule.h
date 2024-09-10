@@ -45,14 +45,14 @@ limitations under the License.
 #include <LumoBackend/Interfaces/NodeInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 
-#include <Interfaces/SceneAudiArtInputInterface.h>
-#include <Interfaces/SceneAudiArtOutputInterface.h>
+#include <Interfaces/SceneAudiartInputInterface.h>
+#include <Interfaces/SceneAudiartOutputInterface.h>
 
 class SoundFFTModule : public NodeInterface,
                        public conf::ConfigAbstract,
                        public TaskInterface,
-                       public SceneAudiArtInputInterface,
-                       public SceneAudiArtOutputInterface,
+                       public SceneAudiartInputInterface,
+                       public SceneAudiartOutputInterface,
                        public GuiInterface {
 public:
     static std::shared_ptr<SoundFFTModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
@@ -78,10 +78,10 @@ public:
         const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
 
     // Interfaces Setters
-    void SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) override;
+    void SetSceneAudiart(const std::string& vName, SceneAudiartWeak vSceneAudiart) override;
 
     // Interfaces Getters
-    SceneAudiArtWeak GetSceneAudiArt(const std::string& vName) override;
+    SceneAudiartWeak GetSceneAudiart(const std::string& vName) override;
 
     std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
     bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;

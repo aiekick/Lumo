@@ -143,7 +143,7 @@ bool BlackmanFilterModule::DrawDialogsAndPopups(
 //// SCENEAUDIART INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void BlackmanFilterModule::SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) {
+void BlackmanFilterModule::SetSceneAudiart(const std::string& vName, SceneAudiartWeak vSceneAudiart) {
     ZoneScoped;
 }
 
@@ -151,9 +151,9 @@ void BlackmanFilterModule::SetSceneAudiArt(const std::string& vName, SceneAudiAr
 //// SCENEAUDIART OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneAudiArtWeak BlackmanFilterModule::GetSceneAudiArt(const std::string& vName) {
+SceneAudiartWeak BlackmanFilterModule::GetSceneAudiart(const std::string& vName) {
     ZoneScoped;
-    return SceneAudiArtWeak();
+    return SceneAudiartWeak();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -19,23 +19,23 @@ limitations under the License.
 #include <LumoBackend/Graph/Graph.h>
 #include <LumoBackend/Graph/Base/NodeSlotOutput.h>
 
-class NodeSlotSceneAudiArtOutput;
-typedef std::weak_ptr<NodeSlotSceneAudiArtOutput> NodeSlotSceneAudiArtOutputWeak;
-typedef std::shared_ptr<NodeSlotSceneAudiArtOutput> NodeSlotSceneAudiArtOutputPtr;
+class NodeSlotSceneAudiartOutput;
+typedef std::weak_ptr<NodeSlotSceneAudiartOutput> NodeSlotSceneAudiartOutputWeak;
+typedef std::shared_ptr<NodeSlotSceneAudiartOutput> NodeSlotSceneAudiartOutputPtr;
 
-class NodeSlotSceneAudiArtOutput : public NodeSlotOutput {
+class NodeSlotSceneAudiartOutput : public NodeSlotOutput {
 public:
-    static NodeSlotSceneAudiArtOutputPtr Create(NodeSlotSceneAudiArtOutput vSlot);
-    static NodeSlotSceneAudiArtOutputPtr Create(const std::string& vName);
-    static NodeSlotSceneAudiArtOutputPtr Create(const std::string& vName, const bool& vHideName);
-    static NodeSlotSceneAudiArtOutputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotSceneAudiartOutputPtr Create(NodeSlotSceneAudiartOutput vSlot);
+    static NodeSlotSceneAudiartOutputPtr Create(const std::string& vName);
+    static NodeSlotSceneAudiartOutputPtr Create(const std::string& vName, const bool& vHideName);
+    static NodeSlotSceneAudiartOutputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
 
 public:
-    explicit NodeSlotSceneAudiArtOutput();
-    explicit NodeSlotSceneAudiArtOutput(const std::string& vName);
-    explicit NodeSlotSceneAudiArtOutput(const std::string& vName, const bool& vHideName);
-    explicit NodeSlotSceneAudiArtOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
-    ~NodeSlotSceneAudiArtOutput();
+    explicit NodeSlotSceneAudiartOutput();
+    explicit NodeSlotSceneAudiartOutput(const std::string& vName);
+    explicit NodeSlotSceneAudiartOutput(const std::string& vName, const bool& vHideName);
+    explicit NodeSlotSceneAudiartOutput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotSceneAudiartOutput();
 
     void Init();
     void Unit();

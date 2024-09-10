@@ -65,7 +65,7 @@ The mac platform is not supported for the moment, due to the vulkan driver. Coul
 | Target | Win (x64) | Linux (x64) | MacOs (x64) |
 | - | - | - | - |
 | Lumo                   | [![Build Status][ba_applic_lumoapp_win]][ci_applic_lumoapp_win] | [![Build Status][ba_applic_lumoapp_lin]][ci_applic_lumoapp_lin] | - |
-| Plugin AudiArt         | [![Build Status][ba_plugin_audiart_win]][ci_plugin_audiart_win] | [![Build Status][ba_plugin_audiart_lin]][ci_plugin_audiart_lin] | - |
+| Plugin Audiart         | [![Build Status][ba_plugin_audiart_win]][ci_plugin_audiart_win] | [![Build Status][ba_plugin_audiart_lin]][ci_plugin_audiart_lin] | - |
 | Plugin CodeGenerator   | [![Build Status][ba_plugin_codegen_win]][ci_plugin_codegen_win] | [![Build Status][ba_plugin_codegen_lin]][ci_plugin_codegen_lin] | - |
 | Plugin Landscape       | [![Build Status][ba_plugin_landsca_win]][ci_plugin_landsca_win] | [![Build Status][ba_plugin_landsca_lin]][ci_plugin_landsca_lin] | - |
 | Plugin Lighting        | [![Build Status][ba_plugin_lightin_win]][ci_plugin_lightin_win] | [![Build Status][ba_plugin_lightin_lin]][ci_plugin_lightin_lin] | - |
@@ -171,11 +171,11 @@ The mac platform is not supported for the moment, due to the vulkan driver. Coul
 
 </details>
 
-# Lumo Plugins :
+# Lumo plugins :
 
 <details>
 
-<summary>AudiArt Plugin :</summary>
+<summary>Audiart Plugin :</summary>
 
 ### Description : 
 

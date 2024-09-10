@@ -20,16 +20,16 @@ limitations under the License.
 #include <vector>
 #include <ctools/cTools.h>
 
-class SceneAudiArt;
-typedef std::shared_ptr<SceneAudiArt> SceneAudiArtPtr;
-typedef std::weak_ptr<SceneAudiArt> SceneAudiArtWeak;
+class SceneAudiart;
+typedef std::shared_ptr<SceneAudiart> SceneAudiartPtr;
+typedef std::weak_ptr<SceneAudiart> SceneAudiartWeak;
 
 // NotifyEvent : need to update the audio buffer
-#define SceneAudiArtUpdateDone "SceneAudiArtUpdateDone"
+#define SceneAudiartUpdateDone "SceneAudiartUpdateDone"
 
-class SceneAudiArt {
+class SceneAudiart {
 public:
-    static SceneAudiArtPtr Create();
+    static SceneAudiartPtr Create();
 
 private:
     static constexpr size_t scFftSize = 512U;
@@ -37,12 +37,12 @@ private:
     static constexpr size_t scMaxAverageSize = 50U;
 
 private:
-    SceneAudiArtWeak m_This;
+    SceneAudiartWeak m_This;
     std::array<double, scFullFftSize> m_AudioBuffer = {};
 
 public:
-    SceneAudiArt();
-    ~SceneAudiArt();
+    SceneAudiart();
+    ~SceneAudiart();
     void Clear();
     bool IsOk() const;
 };

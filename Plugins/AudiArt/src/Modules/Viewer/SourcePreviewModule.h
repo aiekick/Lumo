@@ -45,12 +45,12 @@ limitations under the License.
 #include <LumoBackend/Interfaces/NodeInterface.h>
 #include <LumoBackend/Interfaces/ResizerInterface.h>
 
-#include <Interfaces/SceneAudiArtInputInterface.h>
+#include <Interfaces/SceneAudiartInputInterface.h>
 
 class SourcePreviewModule : public NodeInterface,
                             public conf::ConfigAbstract,
                             public TaskInterface,
-                            public SceneAudiArtInputInterface,
+                            public SceneAudiartInputInterface,
                             public GuiInterface {
 public:
     static std::shared_ptr<SourcePreviewModule> Create(GaiApi::VulkanCoreWeak vVulkanCore, BaseNodeWeak vParentNode);
@@ -76,7 +76,7 @@ public:
         const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
 
     // Interfaces Setters
-    void SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) override;
+    void SetSceneAudiart(const std::string& vName, SceneAudiartWeak vSceneAudiart) override;
 
     std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;
     bool setFromXml(tinyxml2::XMLElement* vElem, tinyxml2::XMLElement* vParent, const std::string& vUserDatas = "") override;

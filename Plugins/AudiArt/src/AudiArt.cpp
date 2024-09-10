@@ -1,8 +1,8 @@
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include "AudiArt.h"
-#include <Headers/AudiArtBuild.h>
+#include "Audiart.h"
+#include <Headers/AudiartBuild.h>
 #include <ctools/FileHelper.h>
 #include <ImGuiPack.h>
 #include <LumoBackend/Graph/Base/BaseNode.h>
@@ -28,52 +28,52 @@ extern "C"  // needed for avoid renaming of funcs by the compiler
 #define PLUGIN_PREFIX
 #endif
 
-PLUGIN_PREFIX AudiArt* allocator() {
-    return new AudiArt();
+PLUGIN_PREFIX Audiart* allocator() {
+    return new Audiart();
 }
 
-PLUGIN_PREFIX void deleter(AudiArt* ptr) {
+PLUGIN_PREFIX void deleter(Audiart* ptr) {
     delete ptr;
 }
 }
 #endif  // USE_PLUGIN_STATIC_LINKING
 
-AudiArt::AudiArt() {
+Audiart::Audiart() {
 #ifdef _MSC_VER
     // active memory leak detector
     //_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 }
 
-void AudiArt::ActionAfterInit() {
+void Audiart::ActionAfterInit() {
     NodeSlot::sGetSlotColors()->AddSlotColor("SCENEAUDIART", ImVec4(0.2f, 0.6f, 0.4f, 1.0f));
 }
 
-uint32_t AudiArt::GetVersionMajor() const {
-    return AudiArt_MinorNumber;
+uint32_t Audiart::GetVersionMajor() const {
+    return Audiart_MinorNumber;
 }
 
-uint32_t AudiArt::GetVersionMinor() const {
-    return AudiArt_MajorNumber;
+uint32_t Audiart::GetVersionMinor() const {
+    return Audiart_MajorNumber;
 }
 
-uint32_t AudiArt::GetVersionBuild() const {
-    return AudiArt_BuildNumber;
+uint32_t Audiart::GetVersionBuild() const {
+    return Audiart_BuildNumber;
 }
 
-std::string AudiArt::GetName() const {
-    return "AudiArt";
+std::string Audiart::GetName() const {
+    return "Audiart";
 }
 
-std::string AudiArt::GetVersion() const {
-    return AudiArt_BuildId;
+std::string Audiart::GetVersion() const {
+    return Audiart_BuildId;
 }
 
-std::string AudiArt::GetDescription() const {
+std::string Audiart::GetDescription() const {
     return "Audio Art plugin";
 }
 
-std::vector<std::string> AudiArt::GetNodes() const {
+std::vector<std::string> Audiart::GetNodes() const {
     return {
         /*
         "MESH_SIM_RENDERER",
@@ -82,21 +82,21 @@ std::vector<std::string> AudiArt::GetNodes() const {
     };
 }
 
-std::vector<LibraryEntry> AudiArt::GetLibrary() const {
+std::vector<LibraryEntry> Audiart::GetLibrary() const {
     std::vector<LibraryEntry> res;
 
-    res.push_back(AddLibraryEntry("AudiArt/Effects", "FFT (audio to audio)", "SOUND_FFT"));
-    res.push_back(AddLibraryEntry("AudiArt/Operations", "Historize (audio to texture)", "HISTORIZE"));
-    res.push_back(AddLibraryEntry("AudiArt/Operations", "AudiArt to Texture", "AUDIO_TEXTURE"));
-    res.push_back(AddLibraryEntry("AudiArt/Sources", "Speacker (to audio)", "SPEAKER_SOURCE"));
-    res.push_back(AddLibraryEntry("AudiArt/Viewers", "Source Preview (audio plot display)", "SOURCE_PREVIEW"));
-    res.push_back(AddLibraryEntry("AudiArt/Viewers", "Visu Hex Grid (texture to texture)", "VISU_HEX_GRID"));
-    res.push_back(AddLibraryEntry("AudiArt/Windowing", "Blackman FIlter", "BLACKMAN_FILTER"));
+    res.push_back(AddLibraryEntry("Audiart/Effects", "FFT (audio to audio)", "SOUND_FFT"));
+    res.push_back(AddLibraryEntry("Audiart/Operations", "Historize (audio to texture)", "HISTORIZE"));
+    res.push_back(AddLibraryEntry("Audiart/Operations", "Audiart to Texture", "AUDIO_TEXTURE"));
+    res.push_back(AddLibraryEntry("Audiart/Sources", "Speacker (to audio)", "SPEAKER_SOURCE"));
+    res.push_back(AddLibraryEntry("Audiart/Viewers", "Source Preview (audio plot display)", "SOURCE_PREVIEW"));
+    res.push_back(AddLibraryEntry("Audiart/Viewers", "Visu Hex Grid (texture to texture)", "VISU_HEX_GRID"));
+    res.push_back(AddLibraryEntry("Audiart/Windowing", "Blackman FIlter", "BLACKMAN_FILTER"));
 
     return res;
 }
 
-BaseNodePtr AudiArt::CreatePluginNode(const std::string& vPluginNodeName) {
+BaseNodePtr Audiart::CreatePluginNode(const std::string& vPluginNodeName) {
     auto vkCorePtr = m_VulkanCoreWeak.lock();
 
     if (vPluginNodeName == "SOUND_FFT")
@@ -117,13 +117,13 @@ BaseNodePtr AudiArt::CreatePluginNode(const std::string& vPluginNodeName) {
     return nullptr;
 }
 
-std::vector<PluginPaneConfig> AudiArt::GetPanes() const {
+std::vector<PluginPaneConfig> Audiart::GetPanes() const {
     std::vector<PluginPaneConfig> res;
 
     return res;
 }
 
-int AudiArt::ResetImGuiID(const int& vWidgetId) {
+int Audiart::ResetImGuiID(const int& vWidgetId) {
     auto ids = ImGui::GetPUSHID();
     ImGui::SetPUSHID(vWidgetId);
     return ids;

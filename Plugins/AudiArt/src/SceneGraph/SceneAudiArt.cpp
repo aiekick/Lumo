@@ -17,7 +17,7 @@ limitations under the License.
 // This is an independent project of an individual developer. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-#include <SceneGraph/SceneAudiArt.h>
+#include <SceneGraph/SceneAudiart.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -31,8 +31,8 @@ limitations under the License.
 //// STATIC //////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SceneAudiArtPtr SceneAudiArt::Create() {
-    auto res = std::make_shared<SceneAudiArt>();
+SceneAudiartPtr SceneAudiart::Create() {
+    auto res = std::make_shared<SceneAudiart>();
     res->m_This = res;
     return res;
 }
@@ -41,16 +41,16 @@ SceneAudiArtPtr SceneAudiArt::Create() {
 //// PUBLIC : BUILD / CLEAR //////////////////////////////////
 //////////////////////////////////////////////////////////////
 
-SceneAudiArt::SceneAudiArt() {
+SceneAudiart::SceneAudiart() {
 }
 
-SceneAudiArt::~SceneAudiArt() {
+SceneAudiart::~SceneAudiart() {
     Clear();
 }
 
-void SceneAudiArt::Clear() {
+void SceneAudiart::Clear() {
 }
 
-bool SceneAudiArt::IsOk() const {
+bool SceneAudiart::IsOk() const {
     return true;
 }

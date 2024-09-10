@@ -19,23 +19,23 @@ limitations under the License.
 #include <LumoBackend/Graph/Graph.h>
 #include <LumoBackend/Graph/Base/NodeSlotInput.h>
 
-class NodeSlotSceneAudiArtInput;
-typedef std::weak_ptr<NodeSlotSceneAudiArtInput> NodeSlotSceneAudiArtInputWeak;
-typedef std::shared_ptr<NodeSlotSceneAudiArtInput> NodeSlotSceneAudiArtInputPtr;
+class NodeSlotSceneAudiartInput;
+typedef std::weak_ptr<NodeSlotSceneAudiartInput> NodeSlotSceneAudiartInputWeak;
+typedef std::shared_ptr<NodeSlotSceneAudiartInput> NodeSlotSceneAudiartInputPtr;
 
-class NodeSlotSceneAudiArtInput : public NodeSlotInput {
+class NodeSlotSceneAudiartInput : public NodeSlotInput {
 public:
-    static NodeSlotSceneAudiArtInputPtr Create(NodeSlotSceneAudiArtInput vSlot);
-    static NodeSlotSceneAudiArtInputPtr Create(const std::string& vName);
-    static NodeSlotSceneAudiArtInputPtr Create(const std::string& vName, const bool& vHideName);
-    static NodeSlotSceneAudiArtInputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    static NodeSlotSceneAudiartInputPtr Create(NodeSlotSceneAudiartInput vSlot);
+    static NodeSlotSceneAudiartInputPtr Create(const std::string& vName);
+    static NodeSlotSceneAudiartInputPtr Create(const std::string& vName, const bool& vHideName);
+    static NodeSlotSceneAudiartInputPtr Create(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
 
 public:
-    explicit NodeSlotSceneAudiArtInput();
-    explicit NodeSlotSceneAudiArtInput(const std::string& vName);
-    explicit NodeSlotSceneAudiArtInput(const std::string& vName, const bool& vHideName);
-    explicit NodeSlotSceneAudiArtInput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
-    ~NodeSlotSceneAudiArtInput();
+    explicit NodeSlotSceneAudiartInput();
+    explicit NodeSlotSceneAudiartInput(const std::string& vName);
+    explicit NodeSlotSceneAudiartInput(const std::string& vName, const bool& vHideName);
+    explicit NodeSlotSceneAudiartInput(const std::string& vName, const bool& vHideName, const bool& vShowWidget);
+    ~NodeSlotSceneAudiartInput();
 
     void Init();
     void Unit();

@@ -40,10 +40,10 @@ limitations under the License.
 
 #include <LumoBackend/Interfaces/GuiInterface.h>
 #include <LumoBackend/Interfaces/NodeInterface.h>
-#include <Interfaces/SceneAudiArtInputInterface.h>
+#include <Interfaces/SceneAudiartInputInterface.h>
 #include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 
-class AudioTextureModule_Comp_2D_Pass : public ShaderPass, public SceneAudiArtInputInterface, public Texture2DOutputInterface, public NodeInterface {
+class AudioTextureModule_Comp_2D_Pass : public ShaderPass, public SceneAudiartInputInterface, public Texture2DOutputInterface, public NodeInterface {
 private:
 public:
     AudioTextureModule_Comp_2D_Pass(GaiApi::VulkanCoreWeak vVulkanCore);
@@ -61,7 +61,7 @@ public:
         const uint32_t& vCurrentFrame, const ImRect& vMaxRect, ImGuiContext* vContextPtr = nullptr, void* vUserDatas = nullptr) override;
 
     // Interfaces Setters
-    void SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) override;
+    void SetSceneAudiart(const std::string& vName, SceneAudiartWeak vSceneAudiart) override;
 
     // Interfaces Getters
     vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr, void* vUserDatas = nullptr) override;

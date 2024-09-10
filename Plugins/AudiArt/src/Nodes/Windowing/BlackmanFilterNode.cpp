@@ -19,8 +19,8 @@ limitations under the License.
 
 #include "BlackmanFilterNode.h"
 #include <Modules/Windowing/BlackmanFilterModule.h>
-#include <Slots/NodeSlotSceneAudiArtInput.h>
-#include <Slots/NodeSlotSceneAudiArtOutput.h>
+#include <Slots/NodeSlotSceneAudiartInput.h>
+#include <Slots/NodeSlotSceneAudiartOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -69,9 +69,9 @@ bool BlackmanFilterNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
 
     name = "Blackman Filter";
 
-    AddInput(NodeSlotSceneAudiArtInput::Create(""), false, true);
+    AddInput(NodeSlotSceneAudiartInput::Create(""), false, true);
 
-    AddOutput(NodeSlotSceneAudiArtOutput::Create(""), false, true);
+    AddOutput(NodeSlotSceneAudiartOutput::Create(""), false, true);
 
     m_BlackmanFilterModulePtr = BlackmanFilterModule::Create(vVulkanCore, m_This);
     if (m_BlackmanFilterModulePtr) {
@@ -154,11 +154,11 @@ void BlackmanFilterNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeStat
 //// SCENEAUDIART INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void BlackmanFilterNode::SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) {
+void BlackmanFilterNode::SetSceneAudiart(const std::string& vName, SceneAudiartWeak vSceneAudiart) {
     ZoneScoped;
 
     if (m_BlackmanFilterModulePtr) {
-        m_BlackmanFilterModulePtr->SetSceneAudiArt(vName, vSceneAudiArt);
+        m_BlackmanFilterModulePtr->SetSceneAudiart(vName, vSceneAudiart);
     }
 }
 
@@ -166,14 +166,14 @@ void BlackmanFilterNode::SetSceneAudiArt(const std::string& vName, SceneAudiArtW
 //// SCENEAUDIART OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneAudiArtWeak BlackmanFilterNode::GetSceneAudiArt(const std::string& vName) {
+SceneAudiartWeak BlackmanFilterNode::GetSceneAudiart(const std::string& vName) {
     ZoneScoped;
 
     if (m_BlackmanFilterModulePtr) {
-        return m_BlackmanFilterModulePtr->GetSceneAudiArt(vName);
+        return m_BlackmanFilterModulePtr->GetSceneAudiart(vName);
     }
 
-    return SceneAudiArtWeak();
+    return SceneAudiartWeak();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
