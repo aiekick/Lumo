@@ -16,11 +16,11 @@ limitations under the License.
 
 #include <LumoBackend/Graph/Graph.h>
 #include <LumoBackend/Graph/Base/BaseNode.h>
-#include <Interfaces/SceneAudiArtInputInterface.h>
-#include <Interfaces/SceneAudiArtOutputInterface.h>
+#include <Interfaces/SceneAudiartInputInterface.h>
+#include <Interfaces/SceneAudiartOutputInterface.h>
 
 class BlackmanFilterModule;
-class BlackmanFilterNode : public SceneAudiArtInputInterface, public SceneAudiArtOutputInterface, public BaseNode {
+class BlackmanFilterNode : public SceneAudiartInputInterface, public SceneAudiartOutputInterface, public BaseNode {
 public:
     static std::shared_ptr<BlackmanFilterNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
@@ -46,10 +46,10 @@ public:
     void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
 
     // Interfaces Setters
-    void SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) override;
+    void SetSceneAudiart(const std::string& vName, SceneAudiartWeak vSceneAudiart) override;
 
     // Interfaces Getters
-    SceneAudiArtWeak GetSceneAudiArt(const std::string& vName) override;
+    SceneAudiartWeak GetSceneAudiart(const std::string& vName) override;
 
     // Configuration
     std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

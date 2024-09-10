@@ -181,11 +181,11 @@ void AudioTextureModule::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint
 //// SCENEAUDIART INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void AudioTextureModule::SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) {
+void AudioTextureModule::SetSceneAudiart(const std::string& vName, SceneAudiartWeak vSceneAudiart) {
     ZoneScoped;
 
     if (m_AudioTextureModule_Comp_2D_Pass_Ptr) {
-        m_AudioTextureModule_Comp_2D_Pass_Ptr->SetSceneAudiArt(vName, vSceneAudiArt);
+        m_AudioTextureModule_Comp_2D_Pass_Ptr->SetSceneAudiart(vName, vSceneAudiart);
     }
 }
 

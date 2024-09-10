@@ -16,12 +16,12 @@ limitations under the License.
 
 #include <LumoBackend/Graph/Graph.h>
 #include <LumoBackend/Graph/Base/BaseNode.h>
-#include <Interfaces/SceneAudiArtInputInterface.h>
+#include <Interfaces/SceneAudiartInputInterface.h>
 #include <LumoBackend/Interfaces/Texture2DOutputInterface.h>
 #include <LumoBackend/Interfaces/ShaderUpdateInterface.h>
 
 class AudioTextureModule;
-class AudioTextureNode : public SceneAudiArtInputInterface, public Texture2DOutputInterface, public ShaderUpdateInterface, public BaseNode {
+class AudioTextureNode : public SceneAudiartInputInterface, public Texture2DOutputInterface, public ShaderUpdateInterface, public BaseNode {
 public:
     static std::shared_ptr<AudioTextureNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
@@ -50,7 +50,7 @@ public:
     void NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32_t* vCountColorBuffers) override;
 
     // Interfaces Setters
-    void SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) override;
+    void SetSceneAudiart(const std::string& vName, SceneAudiartWeak vSceneAudiart) override;
 
     // Interfaces Getters
     vk::DescriptorImageInfo* GetDescriptorImageInfo(const uint32_t& vBindingPoint, ct::fvec2* vOutSize = nullptr, void* vUserDatas = nullptr) override;

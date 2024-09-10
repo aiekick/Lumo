@@ -139,7 +139,7 @@ bool SourcePreviewModule::DrawDialogsAndPopups(
 //// SCENEAUDIART INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SourcePreviewModule::SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) {
+void SourcePreviewModule::SetSceneAudiart(const std::string& vName, SceneAudiartWeak vSceneAudiart) {
     ZoneScoped;
 }
 

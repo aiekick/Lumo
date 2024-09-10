@@ -19,7 +19,7 @@ limitations under the License.
 
 #include "AudioTextureNode.h"
 #include <Modules/Operations/AudioTextureModule.h>
-#include <Slots/NodeSlotSceneAudiArtInput.h>
+#include <Slots/NodeSlotSceneAudiartInput.h>
 #include <LumoBackend/Graph/Slots/NodeSlotTexture2DOutput.h>
 
 #ifdef PROFILER_INCLUDE
@@ -69,7 +69,7 @@ bool AudioTextureNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
 
     name = "Audio Texture";
 
-    AddInput(NodeSlotSceneAudiArtInput::Create(""), false, true);
+    AddInput(NodeSlotSceneAudiartInput::Create(""), false, true);
 
     AddOutput(NodeSlotTexture2DOutput::Create("", 0), false, true);
 
@@ -181,11 +181,11 @@ void AudioTextureNode::NeedResizeByResizeEvent(ct::ivec2* vNewSize, const uint32
 //// SCENEAUDIART INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void AudioTextureNode::SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) {
+void AudioTextureNode::SetSceneAudiart(const std::string& vName, SceneAudiartWeak vSceneAudiart) {
     ZoneScoped;
 
     if (m_AudioTextureModulePtr) {
-        m_AudioTextureModulePtr->SetSceneAudiArt(vName, vSceneAudiArt);
+        m_AudioTextureModulePtr->SetSceneAudiart(vName, vSceneAudiart);
     }
 }
 

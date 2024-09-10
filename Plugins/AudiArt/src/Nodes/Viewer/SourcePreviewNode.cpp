@@ -19,7 +19,7 @@ limitations under the License.
 
 #include "SourcePreviewNode.h"
 #include <Modules/Viewer/SourcePreviewModule.h>
-#include <Slots/NodeSlotSceneAudiArtInput.h>
+#include <Slots/NodeSlotSceneAudiartInput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -68,7 +68,7 @@ bool SourcePreviewNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
 
     name = "Source Preview";
 
-    AddInput(NodeSlotSceneAudiArtInput::Create("New Slot"), false, false);
+    AddInput(NodeSlotSceneAudiartInput::Create("New Slot"), false, false);
 
     m_SourcePreviewModulePtr = SourcePreviewModule::Create(vVulkanCore, m_This);
     if (m_SourcePreviewModulePtr) {
@@ -162,11 +162,11 @@ void SourcePreviewNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState
 //// SCENEAUDIART INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SourcePreviewNode::SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) {
+void SourcePreviewNode::SetSceneAudiart(const std::string& vName, SceneAudiartWeak vSceneAudiart) {
     ZoneScoped;
 
     if (m_SourcePreviewModulePtr) {
-        m_SourcePreviewModulePtr->SetSceneAudiArt(vName, vSceneAudiArt);
+        m_SourcePreviewModulePtr->SetSceneAudiart(vName, vSceneAudiart);
     }
 }
 

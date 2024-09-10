@@ -146,7 +146,7 @@ bool SoundFFTModule::DrawDialogsAndPopups(
 //// SCENEAUDIART INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SoundFFTModule::SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) {
+void SoundFFTModule::SetSceneAudiart(const std::string& vName, SceneAudiartWeak vSceneAudiart) {
     ZoneScoped;
 }
 
@@ -154,9 +154,9 @@ void SoundFFTModule::SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak 
 //// SCENEAUDIART OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneAudiArtWeak SoundFFTModule::GetSceneAudiArt(const std::string& vName) {
+SceneAudiartWeak SoundFFTModule::GetSceneAudiart(const std::string& vName) {
     ZoneScoped;
-    return SceneAudiArtWeak();
+    return SceneAudiartWeak();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////

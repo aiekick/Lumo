@@ -16,10 +16,10 @@ limitations under the License.
 
 #pragma once
 
-#include <SceneGraph/SceneAudiArt.h>
+#include <SceneGraph/SceneAudiart.h>
 #include <string>
 
-class SceneAudiArtOutputInterface {
+class SceneAudiartOutputInterface {
 public:
-    virtual SceneAudiArtWeak GetSceneAudiArt(const std::string& vName) = 0;
+    virtual SceneAudiartWeak GetSceneAudiart(const std::string& vName) = 0;
 };

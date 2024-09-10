@@ -16,10 +16,10 @@ limitations under the License.
 
 #include <LumoBackend/Graph/Graph.h>
 #include <LumoBackend/Graph/Base/BaseNode.h>
-#include <Interfaces/SceneAudiArtOutputInterface.h>
+#include <Interfaces/SceneAudiartOutputInterface.h>
 
 class SpeakerSourceModule;
-class SpeakerSourceNode : public SceneAudiArtOutputInterface, public BaseNode {
+class SpeakerSourceNode : public SceneAudiartOutputInterface, public BaseNode {
 public:
     static std::shared_ptr<SpeakerSourceNode> Create(GaiApi::VulkanCoreWeak vVulkanCore);
 
@@ -45,7 +45,7 @@ public:
     void DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) override;
 
     // Interfaces Getters
-    SceneAudiArtWeak GetSceneAudiArt(const std::string& vName) override;
+    SceneAudiartWeak GetSceneAudiart(const std::string& vName) override;
 
     // Configuration
     std::string getXml(const std::string& vOffset, const std::string& vUserDatas = "") override;

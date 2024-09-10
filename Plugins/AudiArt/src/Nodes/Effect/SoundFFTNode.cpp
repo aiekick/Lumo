@@ -19,8 +19,8 @@ limitations under the License.
 
 #include "SoundFFTNode.h"
 #include <Modules/Effect/SoundFFTModule.h>
-#include <Slots/NodeSlotSceneAudiArtInput.h>
-#include <Slots/NodeSlotSceneAudiArtOutput.h>
+#include <Slots/NodeSlotSceneAudiartInput.h>
+#include <Slots/NodeSlotSceneAudiartOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -69,9 +69,9 @@ bool SoundFFTNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
 
     name = "Sound FFT";
 
-    AddInput(NodeSlotSceneAudiArtInput::Create(""), false, true);
+    AddInput(NodeSlotSceneAudiartInput::Create(""), false, true);
 
-    AddOutput(NodeSlotSceneAudiArtOutput::Create("FFT"), false, false);
+    AddOutput(NodeSlotSceneAudiartOutput::Create("FFT"), false, false);
 
     m_SoundFFTModulePtr = SoundFFTModule::Create(vVulkanCore, m_This);
     if (m_SoundFFTModulePtr) {
@@ -165,11 +165,11 @@ void SoundFFTNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState) {
 //// SCENEAUDIART INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void SoundFFTNode::SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) {
+void SoundFFTNode::SetSceneAudiart(const std::string& vName, SceneAudiartWeak vSceneAudiart) {
     ZoneScoped;
 
     if (m_SoundFFTModulePtr) {
-        m_SoundFFTModulePtr->SetSceneAudiArt(vName, vSceneAudiArt);
+        m_SoundFFTModulePtr->SetSceneAudiart(vName, vSceneAudiart);
     }
 }
 
@@ -177,14 +177,14 @@ void SoundFFTNode::SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vS
 //// SCENEAUDIART OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneAudiArtWeak SoundFFTNode::GetSceneAudiArt(const std::string& vName) {
+SceneAudiartWeak SoundFFTNode::GetSceneAudiart(const std::string& vName) {
     ZoneScoped;
 
     if (m_SoundFFTModulePtr) {
-        return m_SoundFFTModulePtr->GetSceneAudiArt(vName);
+        return m_SoundFFTModulePtr->GetSceneAudiart(vName);
     }
 
-    return SceneAudiArtWeak();
+    return SceneAudiartWeak();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

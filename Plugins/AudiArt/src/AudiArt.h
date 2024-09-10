@@ -5,9 +5,9 @@
 #include <Gaia/Resources/VulkanRessource.h>
 #include <Gaia/Core/vk_mem_alloc.h>
 
-class AudiArt : public PluginInterface {
+class Audiart : public PluginInterface {
 public:
-    AudiArt();
+    Audiart();
     void ActionAfterInit() override;
     uint32_t GetVersionMajor() const override;
     uint32_t GetVersionMinor() const override;

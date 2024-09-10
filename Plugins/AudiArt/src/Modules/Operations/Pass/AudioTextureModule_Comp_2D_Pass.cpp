@@ -102,10 +102,10 @@ bool AudioTextureModule_Comp_2D_Pass::DrawDialogsAndPopups(
 //// SCENEAUDIART INPUT //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-void AudioTextureModule_Comp_2D_Pass::SetSceneAudiArt(const std::string& vName, SceneAudiArtWeak vSceneAudiArt) {
+void AudioTextureModule_Comp_2D_Pass::SetSceneAudiart(const std::string& vName, SceneAudiartWeak vSceneAudiart) {
     ZoneScoped;
 
-    m_SceneAudiArts[vName] = vSceneAudiArt;
+    m_SceneAudiarts[vName] = vSceneAudiart;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////

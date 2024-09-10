@@ -19,7 +19,7 @@ limitations under the License.
 
 #include "SpeakerSourceNode.h"
 #include <Modules/Source/SpeakerSourceModule.h>
-#include <Slots/NodeSlotSceneAudiArtOutput.h>
+#include <Slots/NodeSlotSceneAudiartOutput.h>
 
 #ifdef PROFILER_INCLUDE
 #include <Gaia/gaia.h>
@@ -68,8 +68,8 @@ bool SpeakerSourceNode::Init(GaiApi::VulkanCoreWeak vVulkanCore) {
 
     name = "Speaker Source";
 
-    AddOutput(NodeSlotSceneAudiArtOutput::Create("PCM L"), false, false);
-    AddOutput(NodeSlotSceneAudiArtOutput::Create("PCM R"), false, false);
+    AddOutput(NodeSlotSceneAudiartOutput::Create("PCM L"), false, false);
+    AddOutput(NodeSlotSceneAudiartOutput::Create("PCM R"), false, false);
 
     m_SpeakerSourceModulePtr = SpeakerSourceModule::Create(vVulkanCore, m_This);
     if (m_SpeakerSourceModulePtr) {
@@ -161,14 +161,14 @@ void SpeakerSourceNode::DisplayInfosOnTopOfTheNode(BaseNodeState* vBaseNodeState
 //// SCENEAUDIART OUTPUT /////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-SceneAudiArtWeak SpeakerSourceNode::GetSceneAudiArt(const std::string& vName) {
+SceneAudiartWeak SpeakerSourceNode::GetSceneAudiart(const std::string& vName) {
     ZoneScoped;
 
     if (m_SpeakerSourceModulePtr) {
-        return m_SpeakerSourceModulePtr->GetSceneAudiArt(vName);
+        return m_SpeakerSourceModulePtr->GetSceneAudiart(vName);
     }
 
-    return SceneAudiArtWeak();
+    return SceneAudiartWeak();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
