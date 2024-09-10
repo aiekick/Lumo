@@ -1,14 +1,14 @@
-name: Win Plugin RTX
+name: Win Plugin Rtx
 
 on:
   push:
     branches:
     - master
     paths:
-    - 'plugins/RTX/**'    
+    - 'plugins/Rtx/**'    
 
 jobs:
-  build_Win_Plugin_RTX:
+  build_Win_Plugin_Rtx:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
@@ -25,9 +25,9 @@ jobs:
     - name: configure
       run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DPLUGIN_ENABLE_RTX=ON
     - name: build
-      run: cmake --build build --config Release -t RTX
+      run: cmake --build build --config Release -t Rtx
     - name: upload artifact
       uses: actions/upload-artifact@v3
       with:
-        name: Lumo RTX
-        path: "bin/plugins/*RTX*"
+        name: Lumo Rtx
+        path: "bin/plugins/*Rtx*"

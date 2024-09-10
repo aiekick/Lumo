@@ -1,14 +1,14 @@
-name: Linux Plugin RTX
+name: Linux Plugin Rtx
 
 on: 
   push:
     branches:
     - master
     paths:
-    - 'plugins/RTX/**'    
+    - 'plugins/Rtx/**'    
 
 jobs:
-  build_Linux_Plugin_RTX:
+  build_Linux_Plugin_Rtx:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -27,10 +27,10 @@ jobs:
     - name: configure
       run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DPLUGIN_ENABLE_RTX=ON
     - name: build
-      run: cmake --build build --config Release -t RTX
+      run: cmake --build build --config Release -t Rtx
     - name: upload artifact
       uses: actions/upload-artifact@v3
       with:
-        name: Plugin RTX
-        path: "bin/plugins/*RTX*"
+        name: Plugin Rtx
+        path: "bin/plugins/*Rtx*"
         
