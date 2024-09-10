@@ -5,7 +5,7 @@ on:
     branches:
     - master
     paths:
-    - 'Plugins/Landscape/**'    
+    - 'plugins/Landscape/**'    
 
 jobs:
   build_Linux_Plugin_Landscape:

@@ -5,7 +5,7 @@ on:
     branches:
     - master
     paths:
-    - 'Plugins/Audiart/**'    
+    - 'plugins/Audiart/**'    
 
 jobs:
   build_Linux_Plugin_Audiart:

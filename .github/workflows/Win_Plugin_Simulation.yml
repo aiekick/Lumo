@@ -5,7 +5,7 @@ on:
     branches:
     - master
     paths:
-    - 'Plugins/Simulation/**'    
+    - 'plugins/Simulation/**'    
 
 jobs:
   build_Win_Plugin_Simulation:

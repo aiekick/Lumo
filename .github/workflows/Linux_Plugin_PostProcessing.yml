@@ -5,7 +5,7 @@ on:
     branches:
     - master
     paths:
-    - 'Plugins/PostProcessing/**'    
+    - 'plugins/PostProcessing/**'    
 
 jobs:
   build_Linux_Plugin_PostPro:

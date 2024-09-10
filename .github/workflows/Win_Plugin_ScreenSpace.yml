@@ -5,7 +5,7 @@ on:
     branches:
     - master
     paths:
-    - 'Plugins/ScreenSpace/**'    
+    - 'plugins/ScreenSpace/**'    
 
 jobs:
   build_Win_Plugin_ScreenSpace:

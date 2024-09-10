@@ -5,7 +5,7 @@ on:
     branches:
     - master
     paths:
-    - 'Plugins/Lighting/**'    
+    - 'plugins/Lighting/**'    
 
 jobs:
   build_Linux_Plugin_Lighting:

@@ -5,7 +5,7 @@ on:
     branches:
     - master
     paths:
-    - 'Plugins/MeshGen/**'    
+    - 'plugins/MeshGen/**'    
 
 jobs:
   build_Linux_Plugin_MeshGen:

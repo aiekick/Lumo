@@ -6,7 +6,7 @@ on:
     - master
     paths-ignore:
     - 'bin/**'
-    - 'Plugins/**'
+    - 'plugins/**'
     - '.github/**'
     - 'doc/**'
     - 'res/**'

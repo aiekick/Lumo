@@ -5,7 +5,7 @@ on:
     branches:
     - master
     paths:
-    - 'Plugins/Smoke/**'    
+    - 'plugins/Smoke/**'    
 
 jobs:
   build_Win_Plugin_Smoke:

@@ -5,7 +5,7 @@ on:
     branches:
     - master
     paths:
-    - 'Plugins/Particles/**'    
+    - 'plugins/Particles/**'    
 
 jobs:
   build_Linux_Plugin_Particles:

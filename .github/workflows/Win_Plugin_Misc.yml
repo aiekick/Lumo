@@ -5,7 +5,7 @@ on:
     branches:
     - master
     paths:
-    - 'Plugins/Misc/**'    
+    - 'plugins/Misc/**'    
 
 jobs:
   build_Win_Plugin_Misc:
