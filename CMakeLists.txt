@@ -21,7 +21,7 @@ project(
 ## for group smake targets in the dir cmakeTargets
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "cmakeTargets")
-set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 1)
+## set_property(GLOBAL PROPERTY GLOBAL_DEPENDS_DEBUG_MODE 1)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
