@@ -193,6 +193,10 @@ file(GLOB PLUGINS_README_MD
 	${CMAKE_CURRENT_SOURCE_DIR}/plugins/*.md)
 source_group(Readmes/plugins FILES ${PLUGINS_README_MD})
 
+###########################################################
+###########################################################
+###########################################################
+
 add_executable(${PROJECT}
 	${ICON}
 	${README_MD}
@@ -204,6 +208,10 @@ add_executable(${PROJECT}
 	${PROJECT_SRC_FILES}
 	${PROJECT_CMAKE_FILES}
 )
+
+###########################################################
+###########################################################
+###########################################################
 
 if(USE_CONSOLE_APP)
 	if (MSVC)
